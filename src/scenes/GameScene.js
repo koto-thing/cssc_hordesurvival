@@ -1,26 +1,20 @@
-﻿import { Scene } from '../engine/index.js';
+﻿import { Scene } from "../engine/index.js";
 
 export class GameScene extends Scene {
-    constructor({ sceneManager, assetManager }) {
-        super();
+  constructor({ sceneManager, assetManager }) {
+    super();
 
-        this.sceneManager = sceneManager;
-        this.assetManager = assetManager;
-    }
+    this.sceneManager = sceneManager;
+    this.assetManager = assetManager;
+  }
 
-    initialize() {
+  initialize() {}
 
-    }
+  tick() {}
 
-    tick() {
+  exit() {}
 
-    }
-
-    exit() {
-
-    }
-
-    resize(width, height) {
-        super.resize(width, height);
-    }
+  resize(width, height) {
+    super.resize(width, height);
+  }
 }

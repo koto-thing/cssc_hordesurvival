@@ -6,9 +6,9 @@
  * @returns {number} 範囲内に制限された値
  */
 export function clamp(value, min, max) {
-    const lower = Math.min(min, max);
-    const upper = Math.max(min, max);
-    return Math.min(Math.max(value, lower), upper);
+  const lower = Math.min(min, max);
+  const upper = Math.max(min, max);
+  return Math.min(Math.max(value, lower), upper);
 }
 
 /**
@@ -17,7 +17,7 @@ export function clamp(value, min, max) {
  * @returns {number} 0から1の範囲内に制限された値
  */
 export function clamp01(value) {
-    return clamp(value, 0, 1);
+  return clamp(value, 0, 1);
 }
 
 /**
@@ -28,7 +28,7 @@ export function clamp01(value) {
  * @returns {number} 補間された値
  */
 export function lerp(start, end, amount) {
-    return start + (end - start) * clamp01(amount);
+  return start + (end - start) * clamp01(amount);
 }
 
 /**
@@ -39,11 +39,11 @@ export function lerp(start, end, amount) {
  * @returns {number} 0から1の範囲内に制限された割合
  */
 export function inverseLerp(start, end, value) {
-    if (start === end) {
-        return 0;
-    }
+  if (start === end) {
+    return 0;
+  }
 
-    return clamp01((value - start) / (end - start));
+  return clamp01((value - start) / (end - start));
 }
 
 /**
@@ -56,5 +56,5 @@ export function inverseLerp(start, end, value) {
  * @returns {number} 変換後の値
  */
 export function remap(value, fromMin, fromMax, toMin, toMax) {
-    return lerp(toMin, toMax, inverseLerp(fromMin, fromMax, value));
+  return lerp(toMin, toMax, inverseLerp(fromMin, fromMax, value));
 }

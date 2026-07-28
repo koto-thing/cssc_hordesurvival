@@ -15,6 +15,13 @@ export { Button } from "./domain/Button.js";
 export { Text } from "./domain/Text.js";
 export { Transform } from "./domain/Transform.js";
 export { UIElement } from "./domain/UIElement.js";
+export { VFXComponent } from "./domain/VFXComponent.js";
+
+export {
+  DEFAULT_FRAGMENT_SHADER,
+  DEFAULT_VERTEX_SHADER,
+  VFXShader,
+} from "./rendering/VFXShader.js";
 
 export { clamp, clamp01, inverseLerp, lerp, remap } from "./math/MathUtils.js";
 

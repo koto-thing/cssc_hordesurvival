@@ -40,6 +40,7 @@ export class SceneManager {
     }
 
     // update中二即座にシーンを破棄しないために予約しとく
+    this.nextSceneName = name;
   }
 
   /**

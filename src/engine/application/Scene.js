@@ -18,7 +18,7 @@ export class Scene {
    * @returns {number} シーンのビューポートの幅
    */
   get width() {
-    return this.root.width;
+    return this.viewport.width;
   }
 
   /**

@@ -10,6 +10,7 @@
     "prepare": "vp config"
   },
   "devDependencies": {
+    "@types/createjs": "^0.0.32",
     "vite": "npm:@voidzero-dev/vite-plus-core@0.2.6",
     "vite-plus": "0.2.6"
   },

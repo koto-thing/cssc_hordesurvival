@@ -11,7 +11,10 @@ export {
 export { GameObject } from "./domain/GameObject.js";
 export { KeyCode } from "./domain/KeyCode.js";
 export { MouseButton } from "./domain/MouseButton.js";
+export { Button } from "./domain/Button.js";
+export { Text } from "./domain/Text.js";
 export { Transform } from "./domain/Transform.js";
+export { UIElement } from "./domain/UIElement.js";
 
 export { clamp, clamp01, inverseLerp, lerp, remap } from "./math/MathUtils.js";
 

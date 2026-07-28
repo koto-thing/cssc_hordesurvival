@@ -19,6 +19,7 @@ export class Game {
     // キャンバスとステージを初期化する
     this.canvas = canvas;
     this.stage = new createjs.StageGL(canvas);
+    this.stage.enableMouseOver(30);
     this.stage.clearColor = "#101010";
 
     // ゲームループの状態を管理するフラグとハンドラ

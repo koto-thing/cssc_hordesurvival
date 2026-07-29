@@ -1,6 +1,7 @@
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
+  base: "/cssc_horde_survival/",
   test: {
     setupFiles: ["./src/testSetup.js"],
   },

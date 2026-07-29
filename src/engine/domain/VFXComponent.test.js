@@ -58,7 +58,7 @@ beforeAll(async () => {
 
   ({ GameObject } = await import("./GameObject.js"));
   ({ VFXComponent } = await import("./VFXComponent.js"));
-  ({ VFXShader } = await import("../rendering/VFXShader.js"));
+  ({ VFXShader } = await import("../infrastructure/VFXShader.js"));
 });
 
 describe("VFXComponent", () => {

@@ -1,6 +1,6 @@
 import { Component } from "./Component.js";
-import { VFXShader } from "../rendering/VFXShader.js";
-import { MathUtil } from "../math/MathUtils.js";
+import { VFXShader } from "../infrastructure/VFXShader.js";
+import * as MathUtil from "../math/MathUtils.js";
 
 const DEFAULT_OPTIONS = Object.freeze({
   maxParticles: 256,
@@ -268,7 +268,7 @@ export class VFXComponent extends Component {
  * サンプル値が配列の場合は範囲内のランダム値を返す。単一値の場合はそのまま返す
  * @param value {number|number[]} 単一値または範囲を表す配列
  * @param random {function} 乱数生成関数
- * @returns {number|*} 単一値または範囲内のランダム値
+ * @returns {number} 単一値または範囲内のランダム値
  */
 function sampleRange(value, random) {
   if (!Array.isArray(value)) {

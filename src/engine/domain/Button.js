@@ -81,31 +81,31 @@ export class Button extends UIElement {
     super.dispose();
   }
 
-  #handleMouseOver() {
+  #handleMouseOver = () => {
     if (this.interactable) {
       this.redraw(this.colors.hover);
     }
-  }
+  };
 
-  #handleMouseOut() {
+  #handleMouseOut = () => {
     if (this.interactable) {
       this.redraw(this.colors.normal);
     }
-  }
+  };
 
-  #handleMouseDown() {
+  #handleMouseDown = () => {
     if (this.interactable) {
       this.redraw(this.colors.pressed);
     }
-  }
+  };
 
-  #handlePressUp() {
+  #handlePressUp = () => {
     if (this.interactable) {
       this.redraw(this.colors.hover);
     }
-  }
+  };
 
-  #handleClick() {
+  #handleClick = () => {
     if (!this.interactable) {
       return;
     }
@@ -113,5 +113,5 @@ export class Button extends UIElement {
     for (const listener of this.clickListeners) {
       listener();
     }
-  }
+  };
 }

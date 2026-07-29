@@ -1,0 +1,95 @@
+import { beforeAll, describe, expect, it, vi } from "vite-plus/test";
+
+class Graphics {
+  clear() {
+    return this;
+  }
+  beginFill() {
+    return this;
+  }
+  drawRect() {
+    return this;
+  }
+  drawRoundRect() {
+    return this;
+  }
+  drawCircle() {
+    return this;
+  }
+}
+
+class Container {
+  constructor() {
+    this.children = [];
+    this.handlers = {};
+    this.mouseEnabled = true;
+  }
+  addChild(...children) {
+    this.children.push(...children);
+  }
+  on(type, listener, scope) {
+    this.handlers[type] = listener.bind(scope);
+  }
+  globalToLocal(x, y) {
+    return { x, y };
+  }
+}
+
+class Shape {
+  constructor() {
+    this.graphics = new Graphics();
+  }
+}
+
+let Slider;
+
+beforeAll(async () => {
+  globalThis.createjs = { Container, Shape };
+  ({ Slider } = await import("./Slider.js"));
+});
+
+describe("Slider", () => {
+  it("clamps values and supports whole numbers", () => {
+    const slider = new Slider({ minValue: 10, maxValue: 20, value: 14, wholeNumbers: true });
+    slider.value = 18.7;
+    expect(slider.value).toBe(19);
+    slider.value = 100;
+    expect(slider.value).toBe(20);
+  });
+
+  it("notifies only when its value changes", () => {
+    const slider = new Slider({ value: 0.25 });
+    const listener = vi.fn();
+    slider.onValueChanged(listener);
+    slider.value = 0.75;
+    slider.value = 0.75;
+    slider.setValueWithoutNotify(0.5);
+    expect(listener).toHaveBeenCalledOnce();
+    expect(listener).toHaveBeenCalledWith(0.75);
+  });
+
+  it("updates from track clicks and dragging", () => {
+    const slider = new Slider({ width: 200, value: 0 });
+    slider.handlers.mousedown({ stageX: 50, stageY: 16 });
+    expect(slider.value).toBe(0.25);
+    slider.handlers.pressmove({ stageX: 150, stageY: 16 });
+    expect(slider.value).toBe(0.75);
+  });
+
+  it("supports reversed and vertical directions", () => {
+    const reversed = new Slider({ width: 200, direction: "rightToLeft" });
+    reversed.handlers.mousedown({ stageX: 50, stageY: 16 });
+    expect(reversed.value).toBe(0.75);
+
+    const vertical = new Slider({ width: 32, height: 200, direction: "bottomToTop" });
+    vertical.handlers.mousedown({ stageX: 16, stageY: 50 });
+    expect(vertical.value).toBe(0.75);
+  });
+
+  it("ignores pointer input when disabled", () => {
+    const slider = new Slider({ value: 0.5 });
+    slider.setInteractable(false);
+    slider.handlers.mousedown({ stageX: 200, stageY: 16 });
+    expect(slider.value).toBe(0.5);
+  });
+});

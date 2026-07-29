@@ -1,0 +1,46 @@
+name: CI
+
+# push または pull_request がトリガーされたときにワークフローを実行
+on:
+  push:
+  pull_request:
+
+# 読み取り専用
+permissions:
+  contents: read
+
+# 同じブランチで複数のワークフローが同時に実行されるのを防ぐ
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# ワークフローのジョブを定義
+jobs:
+  # バリデーションジョブ
+  validate:
+    name: Check, test, and build # ジョブ名
+    runs-on: ubuntu-latest # 使用する仮想環境
+    timeout-minutes: 10 # タイムアウト時間（分）
+
+    # ワークフローのステップを定義
+    steps:
+      - name: Check out repository # リポジトリのチェックアウト
+        uses: actions/checkout@v4 # GitHub Actions公式のチェックアウトアクションを使用
+
+      - name: Set up Vite+ # Vite+のセットアップ
+        uses: voidzero-dev/setup-vp@v1 # GitHub Actions公式のセットアップアクションを使用
+        with:
+          node-version: "24" # Node.jsのバージョンを指定
+          cache: true # キャッシュを有効化して依存関係のインストールを高速化
+
+      - name: Install dependencies # 依存関係のインストール
+        run: vp install
+
+      - name: Check lint and types # Lintと型チェックの実行
+        run: vp check --no-fmt
+
+      - name: Run tests # テストの実行
+        run: vp test
+
+      - name: Build # ビルドの実行
+        run: vp build

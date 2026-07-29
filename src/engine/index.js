@@ -9,9 +9,11 @@ export {
   RectangleColliderComponent,
 } from "./domain/ColliderComponent.js";
 export { GameObject } from "./domain/GameObject.js";
+export { Image } from "./domain/Image.js";
 export { KeyCode } from "./domain/KeyCode.js";
 export { MouseButton } from "./domain/MouseButton.js";
 export { Button } from "./domain/Button.js";
+export { Slider } from "./domain/Slider.js";
 export { Text } from "./domain/Text.js";
 export { Transform } from "./domain/Transform.js";
 export { UIElement } from "./domain/UIElement.js";
@@ -21,7 +23,7 @@ export {
   DEFAULT_FRAGMENT_SHADER,
   DEFAULT_VERTEX_SHADER,
   VFXShader,
-} from "./rendering/VFXShader.js";
+} from "./infrastructure/VFXShader.js";
 
 export { clamp, clamp01, inverseLerp, lerp, remap } from "./math/MathUtils.js";
 

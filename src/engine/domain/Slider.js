@@ -135,8 +135,13 @@ export class Slider extends UIElement {
    */
   redraw() {
     const horizontal = this.direction === "leftToRight" || this.direction === "rightToLeft";
-    const trackWidth = horizontal ? this.uiWidth : this.trackThickness;
-    const trackHeight = horizontal ? this.trackThickness : this.uiHeight;
+    // ハンドルが両端で描画領域外へ出ないよう直径分だけレールを短くする
+    const trackWidth = horizontal
+      ? Math.max(0, this.uiWidth - this.handleSize)
+      : this.trackThickness;
+    const trackHeight = horizontal
+      ? this.trackThickness
+      : Math.max(0, this.uiHeight - this.handleSize);
     const trackX = (this.uiWidth - trackWidth) / 2;
     const trackY = (this.uiHeight - trackHeight) / 2;
     const amount = this.normalizedValue;
@@ -177,8 +182,8 @@ export class Slider extends UIElement {
     }
 
     const visualAmount = reversed ? 1 - amount : amount;
-    const handleX = horizontal ? visualAmount * this.uiWidth : this.uiWidth / 2;
-    const handleY = horizontal ? this.uiHeight / 2 : visualAmount * this.uiHeight;
+    const handleX = horizontal ? trackX + visualAmount * trackWidth : this.uiWidth / 2;
+    const handleY = horizontal ? this.uiHeight / 2 : trackY + visualAmount * trackHeight;
     this.handle.graphics.clear();
     if (this.handleSize > 0) {
       this.handle.graphics
@@ -249,8 +254,10 @@ export class Slider extends UIElement {
 
     const point = this.globalToLocal(event.stageX, event.stageY);
     const horizontal = this.direction === "leftToRight" || this.direction === "rightToLeft";
-    const length = horizontal ? this.uiWidth : this.uiHeight;
-    let amount = length > 0 ? (horizontal ? point.x : point.y) / length : 0;
+    const size = horizontal ? this.uiWidth : this.uiHeight;
+    const start = this.handleSize / 2;
+    const length = Math.max(0, size - this.handleSize);
+    let amount = length > 0 ? ((horizontal ? point.x : point.y) - start) / length : 0;
 
     if (this.direction === "rightToLeft" || this.direction === "bottomToTop") {
       amount = 1 - amount;

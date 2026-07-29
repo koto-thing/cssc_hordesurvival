@@ -4,6 +4,7 @@ import { AssetManager, Game, SceneManager } from "./engine/index.js";
 import { TitleScene } from "./scenes/TitleScene.js";
 import { GameScene } from "./scenes/GameScene.js";
 import { bulletList } from "./assets/assetList.js";
+import { GameAudioSettings } from "./settings/GameAudioSettings.js";
 
 async function main() {
   // ゲーム本体を作成
@@ -14,6 +15,7 @@ async function main() {
   assetManager.register(bulletList);
 
   await assetManager.load();
+  const audioSettings = new GameAudioSettings();
 
   // シーンマネージャーを作成
   const sceneManager = new SceneManager(game.stage);
@@ -23,7 +25,7 @@ async function main() {
 
   // シーンを登録
   sceneManager.register("title", () => new TitleScene({ sceneManager, assetManager }));
-  sceneManager.register("game", () => new GameScene({ sceneManager, assetManager }));
+  sceneManager.register("game", () => new GameScene({ sceneManager, assetManager, audioSettings }));
 
   // 起動時のシーンを設定
   sceneManager.changeScene("title");

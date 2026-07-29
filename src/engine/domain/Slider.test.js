@@ -82,19 +82,19 @@ describe("Slider", () => {
 
   it("updates from track clicks and dragging", () => {
     const slider = new Slider({ width: 200, value: 0 });
-    slider.handlers.mousedown({ stageX: 50, stageY: 16 });
+    slider.handlers.mousedown({ stageX: 56, stageY: 16 });
     expect(slider.value).toBe(0.25);
-    slider.handlers.pressmove({ stageX: 150, stageY: 16 });
+    slider.handlers.pressmove({ stageX: 144, stageY: 16 });
     expect(slider.value).toBe(0.75);
   });
 
   it("supports reversed and vertical directions", () => {
     const reversed = new Slider({ width: 200, direction: "rightToLeft" });
-    reversed.handlers.mousedown({ stageX: 50, stageY: 16 });
+    reversed.handlers.mousedown({ stageX: 56, stageY: 16 });
     expect(reversed.value).toBe(0.75);
 
     const vertical = new Slider({ width: 32, height: 200, direction: "bottomToTop" });
-    vertical.handlers.mousedown({ stageX: 16, stageY: 50 });
+    vertical.handlers.mousedown({ stageX: 16, stageY: 56 });
     expect(vertical.value).toBe(0.75);
   });
 
@@ -117,5 +117,13 @@ describe("Slider", () => {
 
     expect(slider.fill.graphics.roundRects).toEqual([]);
     expect(slider.handle.graphics.circles).toEqual([]);
+  });
+
+  it("keeps the handle inside its drawing bounds at both endpoints", () => {
+    const slider = new Slider({ width: 200, handleSize: 24, value: 1 });
+
+    expect(slider.handle.graphics.circles.at(-1)).toEqual([188, 16, 12]);
+    slider.value = 0;
+    expect(slider.handle.graphics.circles.at(-1)).toEqual([12, 16, 12]);
   });
 });

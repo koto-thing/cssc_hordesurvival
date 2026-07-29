@@ -14,8 +14,9 @@ export class HUDUIView extends GameObject {
   /**
    * @param param0
    * @param param0.menuIconSource ハンバーガーメニューアイコンの画像
+   * @param param0.onMenuRequested メニューを開く操作
    */
-  constructor({ menuIconSource }) {
+  constructor({ menuIconSource, onMenuRequested = () => {} }) {
     const view = new createjs.Container();
     super("HUDUIView", view);
 
@@ -62,12 +63,13 @@ export class HUDUIView extends GameObject {
       width: MENU_ICON_SIZE,
       height: MENU_ICON_SIZE,
       imageType: "fit",
-      raycastTarget: false,
+      raycastTarget: true,
     });
     this.menuIcon.x = HUD_MARGIN;
     this.menuIcon.y = HUD_MARGIN;
+    this.menuIcon.cursor = "pointer";
+    this.menuIcon.on("click", onMenuRequested);
 
-    this.view.mouseEnabled = false;
     this.view.addChild(this.menuIcon);
 
     this.labels.forEach((label, index) => {

@@ -1,5 +1,7 @@
 import { UIElement } from "./UIElement.js";
 
+const CACHE_PADDING = 4;
+
 /**
  * StageGLでも簡単に文字を表示できる汎用UIテキスト
  */
@@ -79,7 +81,13 @@ export class Text extends UIElement {
 
     this.hitArea.graphics.clear().beginFill("#000000").drawRect(0, 0, this.uiWidth, this.uiHeight);
 
-    this.cache(0, 0, this.uiWidth, this.uiHeight);
+    // フォントの字形が計測領域をわずかに越えても端が見切れないよう余白を確保する
+    this.cache(
+      -CACHE_PADDING,
+      -CACHE_PADDING,
+      this.uiWidth + CACHE_PADDING * 2,
+      this.uiHeight + CACHE_PADDING * 2,
+    );
   }
 
   #getHorizontalPosition() {

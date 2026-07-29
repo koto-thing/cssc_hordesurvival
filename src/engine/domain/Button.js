@@ -69,7 +69,8 @@ export class Button extends UIElement {
       .drawRoundRect(0, 0, this.uiWidth, this.uiHeight, 12);
 
     this.textView.x = this.uiWidth / 2;
-    this.textView.y = this.uiHeight / 2;
+    // textBaselineがtopのため、文字の実測高を引いてボタン中央へ配置する
+    this.textView.y = (this.uiHeight - this.textView.getMeasuredHeight()) / 2;
 
     this.hitArea.graphics.clear().beginFill("#000000").drawRect(0, 0, this.uiWidth, this.uiHeight);
 

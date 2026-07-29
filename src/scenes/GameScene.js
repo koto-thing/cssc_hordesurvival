@@ -12,6 +12,8 @@ import { HUDUIView } from "../gameScene/HUDUIView.js";
 import { GameRenderLayers } from "../gameScene/GameRenderLayers.js";
 import { GameResultController } from "../gameScene/GameResultController.js";
 import { GameResultView } from "../gameScene/GameResultView.js";
+import { PauseMenuController } from "../gameScene/PauseMenuController.js";
+import { PauseMenuView } from "../gameScene/PauseMenuView.js";
 import { Player } from "../player/player.js";
 import { PlayerShotController } from "../player/playerShotController.js";
 import { PlayerView } from "../player/playerView.js";
@@ -19,11 +21,12 @@ import { SpawnPositionResolver } from "../wave/spawnPositionResolver.js";
 import { WaveController } from "../wave/waveController.js";
 
 export class GameScene extends Scene {
-  constructor({ sceneManager, assetManager }) {
+  constructor({ sceneManager, assetManager, audioSettings }) {
     super();
 
     this.sceneManager = sceneManager;
     this.assetManager = assetManager;
+    this.audioSettings = audioSettings;
     this.renderLayers = null;
     this.hud = null;
     this.player = null;
@@ -44,6 +47,11 @@ export class GameScene extends Scene {
       onReturnRequested: () => this.sceneManager.changeScene("title"),
     });
     this.gameResultView = null;
+    this.pauseMenuView = null;
+    this.pauseMenuController = new PauseMenuController({
+      onStateChanged: (state) => this.pauseMenuView?.show(state),
+      onReturnToTitle: () => this.sceneManager.changeScene("title"),
+    });
     this.returnToTitleHandler = () => this.gameResultController.requestReturn();
   }
 
@@ -55,8 +63,17 @@ export class GameScene extends Scene {
     this.renderLayers.attachTo(this.root);
     this.hud = new HUDUIView({
       menuIconSource: this.assetManager.get("menuIcon"),
+      onMenuRequested: () => this.pauseMenuController.open(),
     });
     this.gameResultView = new GameResultView();
+    this.pauseMenuView = new PauseMenuView({
+      initialVolume: this.audioSettings.volume,
+      onReturnToTitle: () => this.pauseMenuController.returnToTitle(),
+      onOpenOptions: () => this.pauseMenuController.openOptions(),
+      onResume: () => this.pauseMenuController.resume(),
+      onReturnToMenu: () => this.pauseMenuController.returnToMenu(),
+      onVolumeChanged: (volume) => this.audioSettings.setVolume(volume),
+    });
 
     /* HUD */
     this.hud.setDefeatedEnemies(0);
@@ -116,6 +133,7 @@ export class GameScene extends Scene {
     this.renderLayers.combatFeedback.addChild(this.combatFeedbackView.view);
     this.renderLayers.hud.addChild(this.playerView.hudView, this.hud.view);
     this.renderLayers.result.addChild(this.gameResultView.view);
+    this.renderLayers.menu.addChild(this.pauseMenuView.view);
     this.layout();
   }
 
@@ -124,7 +142,7 @@ export class GameScene extends Scene {
    * @param deltaTime 前フレームからの経過時間
    */
   tick(deltaTime) {
-    if (this.gameResultController.result !== null) {
+    if (this.gameResultController.result !== null || this.pauseMenuController.isPaused) {
       return;
     }
 
@@ -173,6 +191,7 @@ export class GameScene extends Scene {
     this.player?.destroy();
     this.playerView?.destroy();
     this.combatFeedbackView.destroy();
+    this.pauseMenuView?.dispose();
     for (const bullet of this.bullets) {
       bullet.destroy();
     }
@@ -188,6 +207,7 @@ export class GameScene extends Scene {
     this.enemySpawner = null;
     this.waveController = null;
     this.gameResultView = null;
+    this.pauseMenuView = null;
     this.bullets = [];
     this.enemies = [];
     this.defeatedEnemies = 0;
@@ -220,6 +240,7 @@ export class GameScene extends Scene {
     this.player.transform.y = this.height / 2;
     this.playerView.layout(this.width);
     this.gameResultView?.layout(this.width, this.height);
+    this.pauseMenuView?.layout(this.width, this.height);
   }
 
   /**

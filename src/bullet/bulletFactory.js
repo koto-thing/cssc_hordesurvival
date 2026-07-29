@@ -30,6 +30,7 @@ export class BulletFactory {
         damage: definition.damage,
         lifetime: definition.lifetime,
         owner,
+        piercing: definition.piercing,
       }),
       moveController: createMoveController(definition, angle),
     });

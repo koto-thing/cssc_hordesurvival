@@ -1,7 +1,13 @@
 import { beforeAll, describe, expect, it, vi } from "vite-plus/test";
 
 class Graphics {
+  constructor() {
+    this.roundRects = [];
+    this.circles = [];
+  }
   clear() {
+    this.roundRects = [];
+    this.circles = [];
     return this;
   }
   beginFill() {
@@ -10,10 +16,12 @@ class Graphics {
   drawRect() {
     return this;
   }
-  drawRoundRect() {
+  drawRoundRect(...args) {
+    this.roundRects.push(args);
     return this;
   }
-  drawCircle() {
+  drawCircle(...args) {
+    this.circles.push(args);
     return this;
   }
 }
@@ -38,6 +46,10 @@ class Container {
 class Shape {
   constructor() {
     this.graphics = new Graphics();
+    this.cacheCalls = [];
+  }
+  cache(...args) {
+    this.cacheCalls.push(args);
   }
 }
 
@@ -91,5 +103,19 @@ describe("Slider", () => {
     slider.setInteractable(false);
     slider.handlers.mousedown({ stageX: 200, stageY: 16 });
     expect(slider.value).toBe(0.5);
+  });
+
+  it("caches redrawn shapes for StageGL rendering", () => {
+    const slider = new Slider({ width: 200, height: 32, value: 0.5 });
+
+    expect(slider.background.cacheCalls.at(-1)).toEqual([0, 0, 200, 32]);
+    expect(slider.fill.cacheCalls.at(-1)).toEqual([0, 0, 200, 32]);
+  });
+
+  it("does not draw zero-sized fill or handle artifacts", () => {
+    const slider = new Slider({ value: 0, handleSize: 0 });
+
+    expect(slider.fill.graphics.roundRects).toEqual([]);
+    expect(slider.handle.graphics.circles).toEqual([]);
   });
 });

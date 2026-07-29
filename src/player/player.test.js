@@ -77,6 +77,18 @@ describe("Player", () => {
     expect(player.statusController.experienceToNextLevel).toBe(80);
   });
 
+  it("levels up while preserving experience above the threshold", () => {
+    const status = new PlayerStatusController({
+      experience: 90,
+      experienceToNextLevel: 100,
+    });
+
+    status.addExperience(25);
+
+    expect(status.experience).toBe(15);
+    expect(status.level).toBe(2);
+  });
+
   it("updates movement components through GameObject.tick", () => {
     const moveController = new PlayerMoveController({
       moveSpeed: 100,

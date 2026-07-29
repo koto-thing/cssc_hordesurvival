@@ -41,6 +41,6 @@ The main contents of this game is vampire survivors like game.
 ## Final Review
 
 - [ ] Check the vp check
-  - If you found the any issues, please fix them.
+  - If you found any issues, please fix them.
 
 <!--PROJECT END-->

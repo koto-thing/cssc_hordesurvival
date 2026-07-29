@@ -2,6 +2,7 @@ import { Component, MathUtil } from "../engine/index.js";
 
 const DEFAULT_HEALTH = 3;
 const DEFAULT_EXPERIENCE_TO_NEXT_LEVEL = 100;
+const DEFAULT_INVULNERABILITY_DURATION = 1;
 
 /**
  * Playerの体力と経験値に関する内部処理を管理するコンポーネント
@@ -12,6 +13,8 @@ export class PlayerStatusController extends Component {
     maxHealth = health,
     experience = 0,
     experienceToNextLevel = DEFAULT_EXPERIENCE_TO_NEXT_LEVEL,
+    level = 1,
+    invulnerabilityDuration = DEFAULT_INVULNERABILITY_DURATION,
   } = {}) {
     super();
 
@@ -22,6 +25,20 @@ export class PlayerStatusController extends Component {
       DEFAULT_EXPERIENCE_TO_NEXT_LEVEL,
     );
     this.experience = MathUtil.clampInteger(experience, 0, this.experienceToNextLevel);
+    this.level = MathUtil.positiveInteger(level, 1);
+    this.invulnerabilityDuration = Math.max(0, Number(invulnerabilityDuration) || 0);
+    this.invulnerabilityRemaining = 0;
+  }
+
+  /**
+   * 無敵時間を更新する
+   * @param deltaTime 前フレームからの経過時間
+   */
+  tick(deltaTime) {
+    this.invulnerabilityRemaining = Math.max(
+      0,
+      this.invulnerabilityRemaining - Math.max(0, deltaTime),
+    );
   }
 
   /**
@@ -38,6 +55,21 @@ export class PlayerStatusController extends Component {
    */
   damage(amount = 1) {
     this.setHealth(this.health - MathUtil.nonNegativeInteger(amount));
+  }
+
+  /**
+   * 攻撃によるダメージを受け、無敵時間を開始する
+   * @param amount ダメージ量
+   * @returns {boolean} ダメージを受けた場合はtrue
+   */
+  takeHit(amount = 1) {
+    if (this.invulnerabilityRemaining > 0 || this.health <= 0) {
+      return false;
+    }
+
+    this.damage(amount);
+    this.invulnerabilityRemaining = this.invulnerabilityDuration;
+    return true;
   }
 
   /**
@@ -59,5 +91,20 @@ export class PlayerStatusController extends Component {
       this.experienceToNextLevel,
     );
     this.experience = MathUtil.clampInteger(experience, 0, this.experienceToNextLevel);
+  }
+
+  /**
+   * 経験値を加算し、必要経験値に達した分だけレベルを上げる
+   * @param amount 加算する経験値
+   */
+  addExperience(amount) {
+    let totalExperience = this.experience + MathUtil.nonNegativeInteger(amount);
+
+    while (totalExperience >= this.experienceToNextLevel) {
+      totalExperience -= this.experienceToNextLevel;
+      this.level += 1;
+    }
+
+    this.experience = totalExperience;
   }
 }

@@ -1,5 +1,6 @@
 ﻿export { Scene } from "./application/Scene.js";
 export { SceneManager } from "./application/SceneManager.js";
+export { CollisionSystem } from "./application/CollisionSystem.js";
 
 export { Component } from "./domain/Component.js";
 export { Camera } from "./domain/Camera.js";

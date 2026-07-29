@@ -1,5 +1,6 @@
 ﻿import { Enemy } from "./enemy.js";
 import { EnemyStatusController } from "./enemyStatusController.js";
+import { EnemyView } from "./EnemyView.js";
 import { ChasePlayerMoveController } from "./chasePlayerMoveController.js";
 
 const FALLBACK_ENEMY_COLOR = "#ff4fa3";
@@ -22,14 +23,21 @@ export class EnemyFactory {
    * @returns {Enemy}
    */
   create({ definition, position, target }) {
-    const view = this.#createView(definition.imageId);
+    const status = new EnemyStatusController({
+      hp: definition.hp,
+      attack: definition.attack,
+      experience: definition.experience,
+      score: definition.score,
+    });
+    const enemyView = new EnemyView({
+      sprite: this.#createSprite(definition.imageId),
+      maxHp: status.maxHp,
+    });
 
     const enemy = new Enemy({
-      view,
-      status: new EnemyStatusController({
-        hp: definition.hp,
-        attack: definition.attack,
-      }),
+      view: enemyView.view,
+      enemyView,
+      status,
       moveController: this.#createMoveController({
         definition,
         target,
@@ -47,7 +55,7 @@ export class EnemyFactory {
    * @param imageId 画像のID
    * @returns {createjs.DisplayObject}
    */
-  #createView(imageId) {
+  #createSprite(imageId) {
     if (imageId) {
       try {
         const image = this.assetManager.get(imageId);
@@ -61,6 +69,13 @@ export class EnemyFactory {
 
     const fallback = new createjs.Shape();
     fallback.graphics.beginFill(FALLBACK_ENEMY_COLOR).drawCircle(0, 0, FALLBACK_ENEMY_RADIUS);
+    // StageGLでShapeを描画できるよう表示範囲をキャッシュする
+    fallback.cache(
+      -FALLBACK_ENEMY_RADIUS,
+      -FALLBACK_ENEMY_RADIUS,
+      FALLBACK_ENEMY_RADIUS * 2,
+      FALLBACK_ENEMY_RADIUS * 2,
+    );
     return fallback;
   }
 

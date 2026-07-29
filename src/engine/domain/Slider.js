@@ -152,34 +152,46 @@ export class Slider extends UIElement {
     if (horizontal) {
       const fillWidth = trackWidth * amount;
       const fillX = reversed ? trackX + trackWidth - fillWidth : trackX;
-      this.fill.graphics.drawRoundRect(
-        fillX,
-        trackY,
-        fillWidth,
-        trackHeight,
-        this.trackThickness / 2,
-      );
+      // 幅0の角丸矩形はStageGLで最小サイズの四角として描画されるため生成しない
+      if (fillWidth > 0) {
+        this.fill.graphics.drawRoundRect(
+          fillX,
+          trackY,
+          fillWidth,
+          trackHeight,
+          this.trackThickness / 2,
+        );
+      }
     } else {
       const fillHeight = trackHeight * amount;
       const fillY = reversed ? trackY + trackHeight - fillHeight : trackY;
-      this.fill.graphics.drawRoundRect(
-        trackX,
-        fillY,
-        trackWidth,
-        fillHeight,
-        this.trackThickness / 2,
-      );
+      if (fillHeight > 0) {
+        this.fill.graphics.drawRoundRect(
+          trackX,
+          fillY,
+          trackWidth,
+          fillHeight,
+          this.trackThickness / 2,
+        );
+      }
     }
 
     const visualAmount = reversed ? 1 - amount : amount;
     const handleX = horizontal ? visualAmount * this.uiWidth : this.uiWidth / 2;
     const handleY = horizontal ? this.uiHeight / 2 : visualAmount * this.uiHeight;
-    this.handle.graphics
-      .clear()
-      .beginFill(this.interactable ? this.colors.handle : this.colors.disabled)
-      .drawCircle(handleX, handleY, this.handleSize / 2);
+    this.handle.graphics.clear();
+    if (this.handleSize > 0) {
+      this.handle.graphics
+        .beginFill(this.interactable ? this.colors.handle : this.colors.disabled)
+        .drawCircle(handleX, handleY, this.handleSize / 2);
+    }
 
     this.hitArea.graphics.clear().beginFill("#000000").drawRect(0, 0, this.uiWidth, this.uiHeight);
+
+    // StageGLで動的なShapeを表示するため、再描画後の内容をキャッシュする
+    this.background.cache?.(0, 0, this.uiWidth, this.uiHeight);
+    this.fill.cache?.(0, 0, this.uiWidth, this.uiHeight);
+    this.handle.cache?.(0, 0, this.uiWidth, this.uiHeight);
   }
 
   /**

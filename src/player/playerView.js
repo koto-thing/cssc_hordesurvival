@@ -9,6 +9,7 @@ const HUD_MARGIN = 32;
 const HEART_SIZE = 30;
 const HEART_GAP = 4;
 const DEFAULT_EXPERIENCE_TO_NEXT_LEVEL = 100;
+const EXPERIENCE_BAR_FOLLOW_SPEED = 10;
 
 /**
  * Playerのワールド表示と固定HUDを管理する描画クラス
@@ -19,6 +20,8 @@ export class PlayerView {
     this.renderedHealth = null;
     this.renderedExperience = null;
     this.renderedExperienceToNextLevel = null;
+    this.renderedLevel = null;
+    this.displayedExperience = 0;
     this.playerDisplay = new createjs.Container();
     this.hudView = new createjs.Container();
 
@@ -62,11 +65,20 @@ export class PlayerView {
       verticalAlign: "middle",
     });
 
+    this.levelText = new Text({
+      text: "Lv. 1",
+      width: 72,
+      height: EXPERIENCE_BAR_HEIGHT,
+      font: "700 12px sans-serif",
+      color: "#ffffff",
+      verticalAlign: "middle",
+    });
+
     this.hearts = new createjs.Container();
     this.playerDisplay.mouseEnabled = false;
     this.hudView.mouseEnabled = false;
     this.playerDisplay.addChild(this.playerImage);
-    this.hudView.addChild(this.experienceBar, this.experienceText, this.hearts);
+    this.hudView.addChild(this.experienceBar, this.experienceText, this.levelText, this.hearts);
   }
 
   /**
@@ -75,13 +87,14 @@ export class PlayerView {
    */
   bind(statusController) {
     this.statusController = statusController;
-    this.sync();
+    this.displayedExperience = statusController.experience;
+    this.sync(0);
   }
 
   /**
    * ステータスコンポーネントの現在値を表示へ反映する
    */
-  sync() {
+  sync(deltaTime = 0) {
     if (this.statusController === null) {
       return;
     }
@@ -92,7 +105,6 @@ export class PlayerView {
     ) {
       const { experience, experienceToNextLevel } = this.statusController;
       this.experienceBar.setRange(0, experienceToNextLevel);
-      this.experienceBar.setValueWithoutNotify(experience);
       this.experienceText.setText(
         `EXP ${experience.toLocaleString("ja-JP")} / ${experienceToNextLevel.toLocaleString("ja-JP")}`,
       );
@@ -100,9 +112,26 @@ export class PlayerView {
       this.renderedExperienceToNextLevel = experienceToNextLevel;
     }
 
-    if (this.renderedHealth !== this.statusController.health) {
-      this.#drawHearts(this.statusController.health);
+    const followAmount = 1 - Math.exp(-EXPERIENCE_BAR_FOLLOW_SPEED * Math.max(0, deltaTime));
+    this.displayedExperience +=
+      (this.statusController.experience - this.displayedExperience) * followAmount;
+    if (Math.abs(this.statusController.experience - this.displayedExperience) < 0.01) {
+      this.displayedExperience = this.statusController.experience;
+    }
+    this.experienceBar.setValueWithoutNotify(this.displayedExperience);
+
+    if (this.renderedLevel !== this.statusController.level) {
+      this.levelText.setText(`Lv. ${this.statusController.level}`);
+      this.renderedLevel = this.statusController.level;
+    }
+
+    if (
+      this.renderedHealth !== this.statusController.health ||
+      this.renderedMaxHealth !== this.statusController.maxHealth
+    ) {
+      this.#drawHearts(this.statusController.health, this.statusController.maxHealth);
       this.renderedHealth = this.statusController.health;
+      this.renderedMaxHealth = this.statusController.maxHealth;
     }
   }
 
@@ -120,6 +149,8 @@ export class PlayerView {
     this.experienceText.setSize(barWidth, EXPERIENCE_BAR_HEIGHT);
     this.experienceText.x = barX;
     this.experienceText.y = EXPERIENCE_BAR_TOP;
+    this.levelText.x = barX + 8;
+    this.levelText.y = EXPERIENCE_BAR_TOP;
     this.hearts.x = barX;
     this.hearts.y = EXPERIENCE_BAR_TOP + EXPERIENCE_BAR_HEIGHT + 4;
   }
@@ -135,14 +166,19 @@ export class PlayerView {
     this.statusController = null;
   }
 
-  #drawHearts(health) {
+  #drawHearts(health, maxHealth) {
     this.hearts.removeAllChildren();
 
-    for (let index = 0; index < health; index += 1) {
-      const heart = new createjs.Text("♥", `bold ${HEART_SIZE}px sans-serif`, "#ff5c70");
-      heart.shadow = new createjs.Shadow("rgba(0, 0, 0, 0.45)", 0, 2, 4);
+    for (let index = 0; index < maxHealth; index += 1) {
+      // 汎用Textを使い、StageGLでもHPが確実に表示されるようキャッシュする
+      const heart = new Text({
+        text: index < health ? "♥" : "♡",
+        width: HEART_SIZE,
+        height: HEART_SIZE + 4,
+        font: `bold ${HEART_SIZE}px sans-serif`,
+        color: index < health ? "#ff5c70" : "#7f3945",
+      });
       heart.x = index * (HEART_SIZE + HEART_GAP);
-      heart.mouseEnabled = false;
       this.hearts.addChild(heart);
     }
   }

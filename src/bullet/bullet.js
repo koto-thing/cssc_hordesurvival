@@ -1,4 +1,4 @@
-import { GameObject } from "../engine/index.js";
+import { CircleColliderComponent, GameObject } from "../engine/index.js";
 import { BulletStatus } from "./BulletStatus.js";
 import { StraightBulletMoveController } from "./StraightBulletMoveController.js";
 
@@ -16,10 +16,12 @@ export class Bullet extends GameObject {
     view = null,
     moveController = new StraightBulletMoveController({ angle: 0, speed: 0 }),
     status = new BulletStatus(),
+    collider = new CircleColliderComponent({ radius: 8 }),
   } = {}) {
     super("bullet", view);
 
     this.moveController = this.addComponent(moveController);
     this.status = this.addComponent(status);
+    this.collider = this.addComponent(collider);
   }
 }

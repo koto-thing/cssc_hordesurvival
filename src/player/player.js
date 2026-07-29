@@ -1,4 +1,4 @@
-import { GameObject } from "../engine/index.js";
+import { CircleColliderComponent, GameObject } from "../engine/index.js";
 import { PlayerMoveController } from "./playerMoveController.js";
 import { PlayerStatusController } from "./playerStatusController.js";
 import { PlayerShotController } from "./playerShotController.js";
@@ -12,6 +12,7 @@ export class Player extends GameObject {
     moveController = new PlayerMoveController(),
     statusController = new PlayerStatusController(),
     playerShotController = new PlayerShotController(),
+    collider = new CircleColliderComponent({ radius: 24 }),
   } = {}) {
     super("Player", view);
 
@@ -19,5 +20,6 @@ export class Player extends GameObject {
     this.moveController = this.addComponent(moveController);
     this.statusController = this.addComponent(statusController);
     this.playerShotController = this.addComponent(playerShotController);
+    this.collider = this.addComponent(collider);
   }
 }

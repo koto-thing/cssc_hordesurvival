@@ -17,6 +17,7 @@ export class GameScene extends Scene {
     this.hud.setRemainingTime(180);
     this.hud.setDefeatedEnemies(0);
     this.hud.setScore(0);
+    this.hud.setExperience(0, 100);
     this.root.addChild(this.hud.view);
     this.layout();
   }

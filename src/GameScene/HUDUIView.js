@@ -1,4 +1,4 @@
-import { GameObject, Image, Text } from "../engine/index.js";
+import { GameObject, Image, Slider, Text } from "../engine/index.js";
 
 const PANEL_WIDTH = 292;
 const PANEL_HEIGHT = 188;
@@ -6,6 +6,9 @@ const PANEL_PADDING = 24;
 const ROW_HEIGHT = 44;
 const HUD_MARGIN = 32;
 const MENU_ICON_SIZE = 64;
+const EXPERIENCE_BAR_WIDTH = 480;
+const EXPERIENCE_BAR_HEIGHT = 32;
+const EXPERIENCE_BAR_TOP = 20;
 
 /**
  * ゲーム画面のカメラに追従するHUD
@@ -22,6 +25,8 @@ export class HUDUIView extends GameObject {
     this.remainingTime = 0;
     this.defeatedEnemies = 0;
     this.score = 0;
+    this.experience = 0;
+    this.experienceToNextLevel = 100;
 
     this.labels = [];
     this.values = [];
@@ -67,8 +72,32 @@ export class HUDUIView extends GameObject {
     this.menuIcon.x = HUD_MARGIN;
     this.menuIcon.y = HUD_MARGIN;
 
+    this.experienceBar = new Slider({
+      minValue: 0,
+      maxValue: this.experienceToNextLevel,
+      value: this.experience,
+      width: EXPERIENCE_BAR_WIDTH,
+      height: EXPERIENCE_BAR_HEIGHT,
+      handleSize: 0,
+      trackThickness: 16,
+      backgroundColor: "#243247",
+      fillColor: "#67e8a5",
+    });
+    this.experienceBar.setInteractable(false);
+
+    this.experienceText = new Text({
+      text: "",
+      width: EXPERIENCE_BAR_WIDTH,
+      height: EXPERIENCE_BAR_HEIGHT,
+      font: "700 16px sans-serif",
+      color: "#ffffff",
+      textAlign: "center",
+      verticalAlign: "middle",
+    });
+    this.updateExperienceText();
+
     this.view.mouseEnabled = false;
-    this.view.addChild(this.menuIcon);
+    this.view.addChild(this.menuIcon, this.experienceBar, this.experienceText);
 
     this.labels.forEach((label, index) => {
       label.y = PANEL_PADDING + index * ROW_HEIGHT;
@@ -86,6 +115,15 @@ export class HUDUIView extends GameObject {
    */
   layout(width) {
     const panelX = Math.max(HUD_MARGIN, width - PANEL_WIDTH - HUD_MARGIN);
+    const experienceBarWidth = Math.min(EXPERIENCE_BAR_WIDTH, Math.max(0, width - HUD_MARGIN * 2));
+    const experienceBarX = Math.max(0, (width - experienceBarWidth) / 2);
+
+    this.experienceBar.setSize(experienceBarWidth, EXPERIENCE_BAR_HEIGHT);
+    this.experienceBar.x = experienceBarX;
+    this.experienceBar.y = EXPERIENCE_BAR_TOP;
+    this.experienceText.setSize(experienceBarWidth, EXPERIENCE_BAR_HEIGHT);
+    this.experienceText.x = experienceBarX;
+    this.experienceText.y = EXPERIENCE_BAR_TOP;
 
     this.labels.forEach((label, index) => {
       label.x = panelX + PANEL_PADDING;
@@ -124,6 +162,32 @@ export class HUDUIView extends GameObject {
   setScore(score) {
     this.score = Math.max(0, Math.floor(Number.isFinite(score) ? score : 0));
     this.values[2].setText(this.score.toLocaleString("ja-JP"));
+  }
+
+  /**
+   * 現在の経験値と次のレベルに必要な経験値を設定する
+   * @param experience {number} 現在の経験値
+   * @param experienceToNextLevel {number} 次のレベルに必要な経験値
+   */
+  setExperience(experience, experienceToNextLevel = this.experienceToNextLevel) {
+    this.experienceToNextLevel = Math.max(
+      1,
+      Math.floor(Number.isFinite(experienceToNextLevel) ? experienceToNextLevel : 1),
+    );
+    this.experience = Math.min(
+      this.experienceToNextLevel,
+      Math.max(0, Math.floor(Number.isFinite(experience) ? experience : 0)),
+    );
+
+    this.experienceBar.setRange(0, this.experienceToNextLevel);
+    this.experienceBar.setValueWithoutNotify(this.experience);
+    this.updateExperienceText();
+  }
+
+  updateExperienceText() {
+    this.experienceText.setText(
+      `EXP ${this.experience.toLocaleString("ja-JP")} / ${this.experienceToNextLevel.toLocaleString("ja-JP")}`,
+    );
   }
 }
 

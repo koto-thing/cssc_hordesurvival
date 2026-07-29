@@ -2,6 +2,8 @@
 export { SceneManager } from "./application/SceneManager.js";
 
 export { Component } from "./domain/Component.js";
+export { Camera } from "./domain/Camera.js";
+export { CameraExtension } from "./domain/CameraExtension.js";
 export {
   CircleColliderComponent,
   ColliderComponent,

@@ -2,8 +2,16 @@ import { CollisionSystem } from "../engine/index.js";
 
 /** プレイヤー、敵、弾の衝突結果を戦闘ルールへ変換する */
 export class CombatCollisionController {
-  constructor({ onPlayerBulletHit = () => {} } = {}) {
+  constructor({
+    onPlayerBulletHit = () => {},
+    onPlayerHit = () => {},
+    onEnemyHit = () => {},
+    onEnemyDefeated = () => {},
+  } = {}) {
     this.onPlayerBulletHit = onPlayerBulletHit;
+    this.onPlayerHit = onPlayerHit;
+    this.onEnemyHit = onEnemyHit;
+    this.onEnemyDefeated = onEnemyDefeated;
   }
 
   /**
@@ -42,6 +50,11 @@ export class CombatCollisionController {
     for (const enemy of enemies) {
       if (!enemy.destroyed && CollisionSystem.intersects(player, enemy)) {
         if (player.statusController.takeHit(enemy.status.attack)) {
+          this.onPlayerHit({
+            x: player.transform.x,
+            y: player.transform.y,
+            damage: enemy.status.attack,
+          });
           enemy.destroy();
         }
       }
@@ -71,7 +84,10 @@ export class CombatCollisionController {
         player.statusController.addExperience(enemy.status.experience);
         result.defeatedEnemies += 1;
         result.scoreGained += enemy.status.score;
-        enemy.destroy();
+        this.onEnemyDefeated();
+        enemy.defeat();
+      } else {
+        this.onEnemyHit();
       }
 
       if (!bullet.status.piercing) {
@@ -87,7 +103,13 @@ export class CombatCollisionController {
     }
 
     bullet.status.recordHit(player);
-    player.statusController.takeHit(bullet.status.damage);
+    if (player.statusController.takeHit(bullet.status.damage)) {
+      this.onPlayerHit({
+        x: player.transform.x,
+        y: player.transform.y,
+        damage: bullet.status.damage,
+      });
+    }
 
     // 敵弾はプレイヤーへ接触した時点で必ず消滅させる
     bullet.destroy();

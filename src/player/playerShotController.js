@@ -4,14 +4,23 @@ import { Component, InputSystem } from "../engine/index.js";
  * プレイヤーの弾を撃つコンポーネント
  */
 export class PlayerShotController extends Component {
-  constructor({ bulletSpawner = null, bulletId = "normal", inputSystem = InputSystem } = {}) {
+  constructor({
+    bulletSpawner = null,
+    bulletId = "normal",
+    shotInterval = 0.2,
+    shotAngles = [0],
+    shotRange = null,
+    inputSystem = InputSystem,
+  } = {}) {
     super();
 
     this.bulletSpawner = bulletSpawner;
     this.bulletId = bulletId;
+    this.shotAngles = shotAngles.length > 0 ? [...shotAngles] : [0];
+    this.shotRange = Number.isFinite(shotRange) && shotRange > 0 ? shotRange : null;
     this.inputSystem = inputSystem;
 
-    this.bulletShotInterval = 0.2;
+    this.bulletShotInterval = Math.max(0.01, shotInterval);
     this.bulletShotTimer = 0;
   }
 
@@ -39,15 +48,18 @@ export class PlayerShotController extends Component {
       return;
     }
 
-    // 弾を発射
-    this.bulletSpawner.spawn({
-      bulletId: this.bulletId,
-      position: {
-        x: this.transform.x,
-        y: this.transform.y,
-      },
-      angle,
-      owner: "player",
-    });
+    // キャラクター定義の角度オフセットごとに弾を発射する
+    for (const angleOffset of this.shotAngles) {
+      this.bulletSpawner.spawn({
+        bulletId: this.bulletId,
+        position: {
+          x: this.transform.x,
+          y: this.transform.y,
+        },
+        angle: angle + angleOffset,
+        owner: "player",
+        range: this.shotRange,
+      });
+    }
   }
 }

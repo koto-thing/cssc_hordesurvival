@@ -2,6 +2,8 @@
 import { EnemyStatusController } from "./enemyStatusController.js";
 import { EnemyView } from "./EnemyView.js";
 import { ChasePlayerMoveController } from "./chasePlayerMoveController.js";
+import { EnemyShotController } from "./EnemyShotController.js";
+import { SpriteAnimation } from "../engine/index.js";
 
 const FALLBACK_ENEMY_COLOR = "#ff4fa3";
 const FALLBACK_ENEMY_RADIUS = 16;
@@ -10,8 +12,9 @@ const FALLBACK_ENEMY_RADIUS = 16;
  * 敵をどう作るかを決めるクラス
  */
 export class EnemyFactory {
-  constructor({ assetManager }) {
+  constructor({ assetManager, bulletSpawner = null }) {
     this.assetManager = assetManager;
+    this.bulletSpawner = bulletSpawner;
   }
 
   /**
@@ -29,8 +32,9 @@ export class EnemyFactory {
       experience: definition.experience,
       score: definition.score,
     });
+    const animation = this.#createAnimation(definition.animation);
     const enemyView = new EnemyView({
-      sprite: this.#createSprite(definition.imageId),
+      sprite: animation?.sprite ?? this.#createSprite(definition.imageId, definition.fallbackColor),
       maxHp: status.maxHp,
     });
 
@@ -38,7 +42,12 @@ export class EnemyFactory {
       view: enemyView.view,
       enemyView,
       status,
+      animation,
       moveController: this.#createMoveController({
+        definition,
+        target,
+      }),
+      shotController: this.#createShotController({
         definition,
         target,
       }),
@@ -51,11 +60,37 @@ export class EnemyFactory {
   }
 
   /**
+   * 敵定義から連番画像アニメーションを生成する
+   * @param definition アニメーション定義
+   * @returns {SpriteAnimation|null}
+   */
+  #createAnimation(definition) {
+    if (!definition) {
+      return null;
+    }
+
+    const clips = Object.fromEntries(
+      Object.entries(definition.clips).map(([name, clip]) => [
+        name,
+        {
+          ...clip,
+          image: this.assetManager.get(clip.imageId),
+        },
+      ]),
+    );
+
+    return new SpriteAnimation({
+      clips,
+      initialClip: definition.initialClip,
+    });
+  }
+
+  /**
    * 敵の表示オブジェクトを生成する
    * @param imageId 画像のID
    * @returns {createjs.DisplayObject}
    */
-  #createSprite(imageId) {
+  #createSprite(imageId, fallbackColor = FALLBACK_ENEMY_COLOR) {
     if (imageId) {
       try {
         const image = this.assetManager.get(imageId);
@@ -68,7 +103,7 @@ export class EnemyFactory {
     }
 
     const fallback = new createjs.Shape();
-    fallback.graphics.beginFill(FALLBACK_ENEMY_COLOR).drawCircle(0, 0, FALLBACK_ENEMY_RADIUS);
+    fallback.graphics.beginFill(fallbackColor).drawCircle(0, 0, FALLBACK_ENEMY_RADIUS);
     // StageGLでShapeを描画できるよう表示範囲をキャッシュする
     fallback.cache(
       -FALLBACK_ENEMY_RADIUS,
@@ -97,5 +132,23 @@ export class EnemyFactory {
       default:
         throw new Error(`Unknown movement type ${definition.movementType}`);
     }
+  }
+
+  /**
+   * 射撃定義を持つ敵へ射撃コンポーネントを生成する
+   */
+  #createShotController({ definition, target }) {
+    if (!definition.shooting) {
+      return null;
+    }
+
+    return new EnemyShotController({
+      bulletSpawner: this.bulletSpawner,
+      bulletId: definition.shooting.bulletId,
+      target,
+      shotInterval: definition.shooting.interval,
+      aimType: definition.shooting.aimType,
+      bulletSpeed: definition.shooting.bulletSpeed,
+    });
   }
 }

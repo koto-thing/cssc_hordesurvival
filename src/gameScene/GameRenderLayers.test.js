@@ -9,6 +9,7 @@ describe("GameRenderLayers", () => {
     layers.attachTo(root);
 
     expect(root.children).toEqual([
+      layers.background,
       layers.world,
       layers.combatFeedback,
       layers.hud,

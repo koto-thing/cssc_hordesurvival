@@ -1,5 +1,6 @@
 import { clamp, inverseLerp, lerp } from "../math/MathUtils.js";
 import { UIElement } from "./UIElement.js";
+import { notifyUIInteraction } from "./UIInteractionFeedback.js";
 
 const DIRECTIONS = new Set(["leftToRight", "rightToLeft", "bottomToTop", "topToBottom"]);
 
@@ -46,7 +47,7 @@ export class Slider extends UIElement {
 
     this._value = this.#sanitizeValue(value);
     this.cursor = "pointer";
-    this.on("mousedown", this.#handlePointer);
+    this.on("mousedown", this.#handlePointerDown);
     this.on("pressmove", this.#handlePointer);
     this.redraw();
   }
@@ -159,25 +160,17 @@ export class Slider extends UIElement {
       const fillX = reversed ? trackX + trackWidth - fillWidth : trackX;
       // 幅0の角丸矩形はStageGLで最小サイズの四角として描画されるため生成しない
       if (fillWidth > 0) {
-        this.fill.graphics.drawRoundRect(
-          fillX,
-          trackY,
-          fillWidth,
-          trackHeight,
-          this.trackThickness / 2,
-        );
+        // Fillが細い途中フレームでも角丸半径が描画サイズを超えないよう制限する
+        const fillRadius = Math.min(this.trackThickness, fillWidth, trackHeight) / 2;
+        this.fill.graphics.drawRoundRect(fillX, trackY, fillWidth, trackHeight, fillRadius);
       }
     } else {
       const fillHeight = trackHeight * amount;
       const fillY = reversed ? trackY + trackHeight - fillHeight : trackY;
       if (fillHeight > 0) {
-        this.fill.graphics.drawRoundRect(
-          trackX,
-          fillY,
-          trackWidth,
-          fillHeight,
-          this.trackThickness / 2,
-        );
+        // Fillが細い途中フレームでも角丸半径が描画サイズを超えないよう制限する
+        const fillRadius = Math.min(this.trackThickness, trackWidth, fillHeight) / 2;
+        this.fill.graphics.drawRoundRect(trackX, fillY, trackWidth, fillHeight, fillRadius);
       }
     }
 
@@ -263,6 +256,19 @@ export class Slider extends UIElement {
       amount = 1 - amount;
     }
     this.normalizedValue = clamp(amount, 0, 1);
+  };
+
+  /**
+   * 操作開始を通知してからスライダーの値を更新する
+   * @param event {createjs.MouseEvent} マウスイベント
+   */
+  #handlePointerDown = (event) => {
+    if (!this.interactable) {
+      return;
+    }
+
+    notifyUIInteraction();
+    this.#handlePointer(event);
   };
 }
 

@@ -1,10 +1,13 @@
 import "./style.css";
 
-import { AssetManager, Game, SceneManager } from "./engine/index.js";
-import { TitleScene } from "./scenes/TitleScene.js";
-import { GameScene } from "./scenes/GameScene.js";
+import { AssetManager, Game, SceneManager, setUIInteractionFeedback } from "./engine/index.js";
+import { TitleScene } from "./scenes/titleScene.js";
+import { GameScene } from "./scenes/gameScene.js";
 import { bulletList } from "./assets/assetList.js";
 import { GameAudioSettings } from "./settings/GameAudioSettings.js";
+import { MainMenuScene } from "./scenes/mainMenuScene.js";
+import { CreditsScene } from "./scenes/creditsScene.js";
+import { GameSoundEffects } from "./audio/GameSoundEffects.js";
 
 async function main() {
   // ゲーム本体を作成
@@ -16,6 +19,12 @@ async function main() {
 
   await assetManager.load();
   const audioSettings = new GameAudioSettings();
+  const soundEffects = new GameSoundEffects();
+  setUIInteractionFeedback(() => soundEffects.playButtonClick());
+  const gameSetup = {
+    characterId: null,
+    stageId: null,
+  };
 
   // シーンマネージャーを作成
   const sceneManager = new SceneManager(game.stage);
@@ -24,8 +33,13 @@ async function main() {
   });
 
   // シーンを登録
-  sceneManager.register("title", () => new TitleScene({ sceneManager, assetManager }));
-  sceneManager.register("game", () => new GameScene({ sceneManager, assetManager, audioSettings }));
+  sceneManager.register("title", () => new TitleScene({ sceneManager }));
+  sceneManager.register("credits", () => new CreditsScene({ sceneManager }));
+  sceneManager.register("mainMenu", () => new MainMenuScene({ sceneManager, gameSetup }));
+  sceneManager.register(
+    "game",
+    () => new GameScene({ sceneManager, assetManager, audioSettings, soundEffects, gameSetup }),
+  );
 
   // 起動時のシーンを設定
   sceneManager.changeScene("title");

@@ -15,9 +15,10 @@ export class BulletSpawner {
    * @param options.position 弾の生成座標
    * @param options.angle 弾を飛ばす角度
    * @param options.owner 弾を発射した陣営
+   * @param options.range 弾が消滅するまでの最大移動距離
    * @returns {import("./bullet.js").Bullet}
    */
-  spawn({ bulletId, position, angle, owner }) {
+  spawn({ bulletId, position, angle, owner, range = null }) {
     const definition = this.bulletDefinitions[bulletId];
 
     // 定義がない場合はエラーを投げる
@@ -30,6 +31,7 @@ export class BulletSpawner {
       position,
       angle,
       owner,
+      range,
     });
 
     this.onSpawn(bullet);

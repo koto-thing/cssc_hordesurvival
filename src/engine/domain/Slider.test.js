@@ -119,6 +119,27 @@ describe("Slider", () => {
     expect(slider.handle.graphics.circles).toEqual([]);
   });
 
+  it("limits the fill radius to its animated size", () => {
+    const horizontal = new Slider({
+      width: 200,
+      height: 32,
+      trackThickness: 16,
+      handleSize: 0,
+      value: 0.01,
+    });
+    const vertical = new Slider({
+      width: 32,
+      height: 200,
+      trackThickness: 16,
+      handleSize: 0,
+      direction: "bottomToTop",
+      value: 0.01,
+    });
+
+    expect(horizontal.fill.graphics.roundRects.at(-1)).toEqual([0, 8, 2, 16, 1]);
+    expect(vertical.fill.graphics.roundRects.at(-1)).toEqual([8, 198, 16, 2, 1]);
+  });
+
   it("keeps the handle inside its drawing bounds at both endpoints", () => {
     const slider = new Slider({ width: 200, handleSize: 24, value: 1 });
 

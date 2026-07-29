@@ -25,4 +25,11 @@ export class EnemyPresentationController extends Component {
     this.enemyView.setHealth(this.status.hp);
     this.enemyView.flash();
   }
+
+  /**
+   * 死亡演出用の表示へ切り替える
+   */
+  beginDeath() {
+    this.enemyView.beginDeath();
+  }
 }

@@ -1,5 +1,7 @@
 ﻿import { InputSystem } from "./InputSystem.js";
 
+import { UI_THEME } from "../../assets/uiTheme.js";
+
 /**
  * 描画ステージとゲームループを管理するクラス
  */
@@ -19,7 +21,7 @@ export class Game {
     // キャンバスとステージを初期化する
     this.canvas = canvas;
     this.stage = new createjs.StageGL(canvas);
-    this.stage.clearColor = "#101010";
+    this.stage.clearColor = UI_THEME.canvas;
 
     // ゲームループの状態を管理するフラグとハンドラ
     this.isRunning = false;

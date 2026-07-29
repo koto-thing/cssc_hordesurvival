@@ -16,6 +16,8 @@ function createController({
       ],
     },
   ],
+  repeats = false,
+  difficultyIncreasePerCycle = 0.1,
 } = {}) {
   const spawned = [];
   const remainingTimes = [];
@@ -36,6 +38,8 @@ function createController({
         return position;
       },
     },
+    repeats,
+    difficultyIncreasePerCycle,
     getViewport: () => ({ width: 800, height: 600 }),
     onTimeChanged: (time) => remainingTimes.push(time),
     onCompleted: () => {
@@ -143,5 +147,42 @@ describe("WaveController", () => {
         ],
       }),
     ).toThrow("Enemy spawn interval must be greater than zero");
+  });
+
+  it("繰り返し設定では全Wave完了後も次の周回を開始する", () => {
+    const { controller, spawned, remainingTimes, getCompletedCount } = createController({
+      repeats: true,
+    });
+
+    controller.tick(5);
+
+    expect(spawned).toHaveLength(4);
+    expect(remainingTimes).toEqual([5, 5]);
+    expect(getCompletedCount()).toBe(0);
+  });
+
+  it("周回ごとに出現間隔を短縮して敵の数を増やす", () => {
+    const { controller, spawned } = createController({
+      waves: [
+        {
+          startTime: 0,
+          duration: 4,
+          spawns: [
+            {
+              enemyId: "slime",
+              interval: 2,
+              count: 2,
+              positionType: "screenEdge",
+            },
+          ],
+        },
+      ],
+      repeats: true,
+      difficultyIncreasePerCycle: 0.5,
+    });
+
+    controller.tick(7.9);
+
+    expect(spawned).toHaveLength(5);
   });
 });

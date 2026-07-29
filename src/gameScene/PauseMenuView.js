@@ -1,3 +1,4 @@
+import { UI_BUTTON_COLORS, UI_THEME } from "../assets/uiTheme.js";
 import { Button, Slider, Text } from "../engine/index.js";
 
 const PANEL_WIDTH = 420;
@@ -37,7 +38,7 @@ export class PauseMenuView {
       width: 180,
       height: 36,
       font: "600 22px sans-serif",
-      color: "#ffffff",
+      color: UI_THEME.text,
       verticalAlign: "middle",
     });
     this.volumeValue = new Text({
@@ -45,7 +46,7 @@ export class PauseMenuView {
       width: 80,
       height: 36,
       font: "700 22px monospace",
-      color: "#ffffff",
+      color: UI_THEME.text,
       textAlign: "right",
       verticalAlign: "middle",
     });
@@ -57,6 +58,9 @@ export class PauseMenuView {
       height: 44,
       handleSize: 26,
       trackThickness: 10,
+      backgroundColor: UI_THEME.surfaceStrong,
+      fillColor: UI_THEME.primary,
+      handleColor: UI_THEME.text,
     });
     this.backButton = createButton("メニューに戻る");
 
@@ -105,7 +109,7 @@ export class PauseMenuView {
    * 表示領域に合わせてオーバーレイを配置する
    */
   layout(width, height) {
-    this.overlay.graphics.clear().beginFill("rgba(8, 12, 22, 0.76)").drawRect(0, 0, width, height);
+    this.overlay.graphics.clear().beginFill(UI_THEME.overlay).drawRect(0, 0, width, height);
     this.overlay.cache(0, 0, width, height);
 
     // 小さいビューポートでもダイアログ全体が画面内へ収まるよう均等に縮小する
@@ -159,7 +163,7 @@ export class PauseMenuView {
   #drawPanel() {
     this.panel.graphics
       .clear()
-      .beginFill("#202a3b")
+      .beginFill(UI_THEME.surface)
       .drawRoundRect(0, 0, PANEL_WIDTH, PANEL_HEIGHT, 20);
     this.panel.cache(0, 0, PANEL_WIDTH, PANEL_HEIGHT);
   }
@@ -183,7 +187,10 @@ function createButton(text) {
     text,
     width: BUTTON_WIDTH,
     height: BUTTON_HEIGHT,
-    normalColor: "#4654d6",
+    textColor: UI_THEME.textOnDark,
+    normalColor: UI_BUTTON_COLORS.primary.normal,
+    hoverColor: UI_BUTTON_COLORS.primary.hover,
+    pressedColor: UI_BUTTON_COLORS.primary.pressed,
   });
 }
 
@@ -194,7 +201,7 @@ function createButton(text) {
  * @returns {Text}
  */
 function createLabel(text, font) {
-  return new Text({ text, font, color: "#ffffff" });
+  return new Text({ text, font, color: UI_THEME.text });
 }
 
 /**

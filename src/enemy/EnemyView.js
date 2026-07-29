@@ -33,6 +33,15 @@ export class EnemyView {
   }
 
   /**
+   * 死亡演出中はHPバーを非表示にする
+   */
+  beginDeath() {
+    this.flashRemaining = 0;
+    this.sprite.alpha = 1;
+    this.healthBar.visible = false;
+  }
+
+  /**
    * 現在HPをバーへ反映する
    */
   setHealth(health) {

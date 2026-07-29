@@ -16,6 +16,8 @@ export class PlayerMoveController extends Component {
 
     this.moveSpeed = moveSpeed;
     this.inputSystem = inputSystem;
+    this.velocityX = 0;
+    this.velocityY = 0;
   }
 
   /**
@@ -30,14 +32,20 @@ export class PlayerMoveController extends Component {
       Number(this.#isHeld(KeyCode.S, KeyCode.ArrowDown)) -
       Number(this.#isHeld(KeyCode.W, KeyCode.ArrowUp));
 
+    this.velocityX = 0;
+    this.velocityY = 0;
     if (horizontal === 0 && vertical === 0) {
       return;
     }
 
     // 斜め移動でも速度が速くならないよう入力ベクトルを正規化
     const length = Math.hypot(horizontal, vertical);
-    const distance = this.moveSpeed * Math.max(0, deltaTime);
-    this.transform.translate((horizontal / length) * distance, (vertical / length) * distance);
+    this.velocityX = (horizontal / length) * this.moveSpeed;
+    this.velocityY = (vertical / length) * this.moveSpeed;
+    this.transform.translate(
+      this.velocityX * Math.max(0, deltaTime),
+      this.velocityY * Math.max(0, deltaTime),
+    );
   }
 
   /**

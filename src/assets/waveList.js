@@ -30,6 +30,18 @@
         count: 30,
         positionType: "screenEdge",
       },
+      {
+        enemyId: "shooterSlime",
+        interval: 5,
+        count: 6,
+        positionType: "screenEdge",
+      },
+      {
+        enemyId: "predictiveShooterSlime",
+        interval: 10,
+        count: 3,
+        positionType: "screenEdge",
+      },
     ],
   },
 ];

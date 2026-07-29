@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vite-plus/test";
 import { GameObject } from "../engine/index.js";
 import { ChasePlayerMoveController } from "./chasePlayerMoveController.js";
 import { EnemyFactory } from "./enemyFactory.js";
+import { EnemyShotController } from "./EnemyShotController.js";
 
 class Bitmap {
   constructor(image) {
@@ -21,6 +22,12 @@ class Container {
   }
 
   removeAllEventListeners() {}
+}
+
+class Rectangle {
+  constructor(x, y, width, height) {
+    Object.assign(this, { x, y, width, height });
+  }
 }
 
 class Graphics {
@@ -60,7 +67,7 @@ class Shape {
 }
 
 beforeEach(() => {
-  globalThis.createjs = { Bitmap, Container, Shape };
+  globalThis.createjs = { Bitmap, Container, Rectangle, Shape };
 });
 
 describe("ChasePlayerMoveController", () => {
@@ -136,6 +143,57 @@ describe("EnemyFactory", () => {
     expect(enemy.presentationController.enemyView.sprite.alpha).toBe(0.25);
   });
 
+  it("死亡時は戦闘機能を停止し、死亡アニメーション完了後に破棄する", () => {
+    const images = {
+      slimeRun: { width: 192, height: 32 },
+      slimeDie: { width: 160, height: 32 },
+    };
+    const factory = new EnemyFactory({
+      assetManager: { get: (id) => images[id] },
+    });
+    const enemy = factory.create({
+      definition: {
+        hp: 10,
+        attack: 1,
+        speed: 80,
+        movementType: "chase",
+        animation: {
+          initialClip: "run",
+          clips: {
+            run: {
+              imageId: "slimeRun",
+              frameWidth: 32,
+              frameHeight: 32,
+              frameRate: 10,
+              loop: true,
+            },
+            die: {
+              imageId: "slimeDie",
+              frameWidth: 32,
+              frameHeight: 32,
+              frameRate: 10,
+              loop: false,
+            },
+          },
+        },
+      },
+      position: { x: 0, y: 0 },
+      target: new GameObject(),
+    });
+
+    enemy.defeat();
+
+    expect(enemy.isDying).toBe(true);
+    expect(enemy.moveController.enabled).toBe(false);
+    expect(enemy.collider.enabled).toBe(false);
+    expect(enemy.presentationController.enemyView.healthBar.visible).toBe(false);
+    expect(enemy.destroyed).toBe(false);
+    expect(enemy.animation.currentClipName).toBe("die");
+
+    enemy.tick(0.5);
+    expect(enemy.destroyed).toBe(true);
+  });
+
   it("画像アセットが未登録の場合はピンク色の円を生成する", () => {
     const factory = new EnemyFactory({
       assetManager: {
@@ -167,5 +225,37 @@ describe("EnemyFactory", () => {
       width: 32,
       height: 32,
     });
+  });
+
+  it("射撃定義から偏差射撃コンポーネントを組み立てる", () => {
+    const bulletSpawner = { spawn() {} };
+    const factory = new EnemyFactory({
+      assetManager: { get: () => ({}) },
+      bulletSpawner,
+    });
+    const target = new GameObject();
+
+    const enemy = factory.create({
+      definition: {
+        imageId: "predictiveShooterSlime",
+        hp: 30,
+        attack: 2,
+        speed: 65,
+        movementType: "chase",
+        shooting: {
+          bulletId: "enemyPredictive",
+          bulletSpeed: 260,
+          interval: 1.5,
+          aimType: "predictive",
+        },
+      },
+      position: { x: 0, y: 0 },
+      target,
+    });
+
+    expect(enemy.shotController).toBeInstanceOf(EnemyShotController);
+    expect(enemy.shotController.bulletSpawner).toBe(bulletSpawner);
+    expect(enemy.shotController.target).toBe(target);
+    expect(enemy.shotController.aimType).toBe("predictive");
   });
 });

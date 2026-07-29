@@ -6,6 +6,7 @@
  */
 export class GameRenderLayers {
   constructor() {
+    this.background = new createjs.Container();
     this.world = new createjs.Container();
     this.combatFeedback = new createjs.Container();
     this.hud = new createjs.Container();
@@ -18,6 +19,13 @@ export class GameRenderLayers {
    * @param root シーンのルートコンテナ
    */
   attachTo(root) {
-    root.addChild(this.world, this.combatFeedback, this.hud, this.result, this.menu);
+    root.addChild(
+      this.background,
+      this.world,
+      this.combatFeedback,
+      this.hud,
+      this.result,
+      this.menu,
+    );
   }
 }

@@ -1,3 +1,4 @@
+import { UI_THEME } from "../assets/uiTheme.js";
 import { Text } from "../engine/index.js";
 
 /**
@@ -10,12 +11,12 @@ export class GameResultView {
     this.resultText = new Text({
       text: "",
       font: "700 56px sans-serif",
-      color: "#ffffff",
+      color: UI_THEME.textOnDark,
     });
     this.returnText = new Text({
       text: "クリックまたはキー入力でタイトルへ戻る",
       font: "20px sans-serif",
-      color: "#d8deea",
+      color: UI_THEME.surfaceMuted,
     });
 
     this.view.mouseEnabled = false;
@@ -36,10 +37,7 @@ export class GameResultView {
    * 表示領域に合わせてオーバーレイを配置する
    */
   layout(width, height) {
-    this.background.graphics
-      .clear()
-      .beginFill("rgba(12, 15, 25, 0.78)")
-      .drawRect(0, 0, width, height);
+    this.background.graphics.clear().beginFill(UI_THEME.overlay).drawRect(0, 0, width, height);
     this.background.cache(0, 0, width, height);
 
     this.resultText.x = (width - this.resultText.uiWidth) / 2;

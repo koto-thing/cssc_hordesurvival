@@ -1,4 +1,5 @@
-import { GameObject, Image, Text } from "../engine/index.js";
+import { UI_THEME } from "../assets/uiTheme.js";
+import { GameObject, Image, notifyUIInteraction, Text } from "../engine/index.js";
 
 const PANEL_WIDTH = 292;
 const PANEL_HEIGHT = 188;
@@ -40,8 +41,10 @@ export class HUDUIView extends GameObject {
           width: 140,
           height: ROW_HEIGHT,
           font: "600 18px sans-serif",
-          color: "#b8c5d6",
+          color: UI_THEME.textOnDark,
           verticalAlign: "middle",
+          outlineColor: "#1a1714",
+          outlineWidth: 4,
         }),
       );
 
@@ -51,9 +54,11 @@ export class HUDUIView extends GameObject {
           width: 104,
           height: ROW_HEIGHT,
           font: "700 24px monospace",
-          color: "#ffffff",
+          color: UI_THEME.textOnDark,
           textAlign: "right",
           verticalAlign: "middle",
+          outlineColor: "#1a1714",
+          outlineWidth: 5,
         }),
       );
     }
@@ -68,7 +73,10 @@ export class HUDUIView extends GameObject {
     this.menuIcon.x = HUD_MARGIN;
     this.menuIcon.y = HUD_MARGIN;
     this.menuIcon.cursor = "pointer";
-    this.menuIcon.on("click", onMenuRequested);
+    this.menuIcon.on("click", () => {
+      notifyUIInteraction();
+      onMenuRequested();
+    });
 
     this.view.addChild(this.menuIcon);
 

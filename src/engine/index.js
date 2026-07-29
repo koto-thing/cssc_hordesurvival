@@ -17,9 +17,11 @@ export { KeyCode } from "./domain/KeyCode.js";
 export { MouseButton } from "./domain/MouseButton.js";
 export { Button } from "./domain/Button.js";
 export { Slider } from "./domain/Slider.js";
+export { SpriteAnimation } from "./domain/SpriteAnimation.js";
 export { Text } from "./domain/Text.js";
 export { Transform } from "./domain/Transform.js";
 export { UIElement } from "./domain/UIElement.js";
+export { notifyUIInteraction, setUIInteractionFeedback } from "./domain/UIInteractionFeedback.js";
 export { VFXComponent } from "./domain/VFXComponent.js";
 
 export {

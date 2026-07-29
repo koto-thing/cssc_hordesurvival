@@ -16,6 +16,8 @@ export class Text extends UIElement {
     verticalAlign = "top",
     lineHeight = 0,
     maxWidth = null,
+    outlineColor = null,
+    outlineWidth = 0,
   } = {}) {
     super({ width: width ?? 0, height: height ?? 0 });
 
@@ -30,6 +32,18 @@ export class Text extends UIElement {
     this.textView.lineWidth = maxWidth;
     this.textView.mouseEnabled = false;
 
+    this.outlineView = null;
+    this.outlineWidth = Math.max(0, Number(outlineWidth) || 0);
+    if (outlineColor !== null && this.outlineWidth > 0) {
+      this.outlineView = new createjs.Text(text, font, outlineColor);
+      this.outlineView.textBaseline = "top";
+      this.outlineView.lineHeight = lineHeight;
+      this.outlineView.lineWidth = maxWidth;
+      this.outlineView.outline = this.outlineWidth;
+      this.outlineView.mouseEnabled = false;
+      this.addChild(this.outlineView);
+    }
+
     this.hitArea = new createjs.Shape();
     this.addChild(this.textView);
     this.redraw();
@@ -37,11 +51,17 @@ export class Text extends UIElement {
 
   setText(text) {
     this.textView.text = text;
+    if (this.outlineView !== null) {
+      this.outlineView.text = text;
+    }
     this.redraw();
   }
 
   setFont(font) {
     this.textView.font = font;
+    if (this.outlineView !== null) {
+      this.outlineView.font = font;
+    }
     this.redraw();
   }
 
@@ -78,15 +98,21 @@ export class Text extends UIElement {
     this.textView.textAlign = this.textAlign;
     this.textView.x = this.#getHorizontalPosition();
     this.textView.y = this.#getVerticalPosition();
+    if (this.outlineView !== null) {
+      this.outlineView.textAlign = this.textAlign;
+      this.outlineView.x = this.textView.x;
+      this.outlineView.y = this.textView.y;
+    }
 
     this.hitArea.graphics.clear().beginFill("#000000").drawRect(0, 0, this.uiWidth, this.uiHeight);
 
     // フォントの字形が計測領域をわずかに越えても端が見切れないよう余白を確保する
+    const cachePadding = Math.max(CACHE_PADDING, this.outlineWidth);
     this.cache(
-      -CACHE_PADDING,
-      -CACHE_PADDING,
-      this.uiWidth + CACHE_PADDING * 2,
-      this.uiHeight + CACHE_PADDING * 2,
+      -cachePadding,
+      -cachePadding,
+      this.uiWidth + cachePadding * 2,
+      this.uiHeight + cachePadding * 2,
     );
   }
 

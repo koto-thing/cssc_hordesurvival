@@ -1,5 +1,7 @@
 ﻿import { UIElement } from "./UIElement.js";
 
+import { notifyUIInteraction } from "./UIInteractionFeedback.js";
+
 /**
  * クリック可能な汎用UIボタン
  */
@@ -60,6 +62,15 @@ export class Button extends UIElement {
     };
   }
 
+  /**
+   * ボタンの表示色を変更する
+   * @param colors 状態ごとの色
+   */
+  setColors(colors) {
+    this.colors = { ...this.colors, ...colors };
+    this.redraw();
+  }
+
   redraw(color = null) {
     const currentColor = color ?? (this.interactable ? this.colors.normal : this.colors.disabled);
 
@@ -111,6 +122,7 @@ export class Button extends UIElement {
       return;
     }
 
+    notifyUIInteraction();
     for (const listener of this.clickListeners) {
       listener();
     }

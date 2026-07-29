@@ -15,7 +15,8 @@ function placeAtOrigin(...objects) {
 
 describe("CombatCollisionController", () => {
   it("敵との接触でattack分のダメージを受け、接触した敵が消滅する", () => {
-    const controller = new CombatCollisionController();
+    const onPlayerHit = vi.fn();
+    const controller = new CombatCollisionController({ onPlayerHit });
     const player = new Player({
       statusController: new PlayerStatusController({ health: 10, maxHealth: 10 }),
     });
@@ -27,10 +28,13 @@ describe("CombatCollisionController", () => {
     controller.resolve({ player, enemies: [enemy], bullets: [] });
     expect(player.statusController.health).toBe(7);
     expect(enemy.destroyed).toBe(true);
+    expect(onPlayerHit).toHaveBeenCalledWith({ x: 0, y: 0, damage: 3 });
   });
 
   it("敵を倒すと敵に設定された経験値を獲得する", () => {
-    const controller = new CombatCollisionController();
+    const onEnemyHit = vi.fn();
+    const onEnemyDefeated = vi.fn();
+    const controller = new CombatCollisionController({ onEnemyHit, onEnemyDefeated });
     const player = new Player({
       statusController: new PlayerStatusController({
         experience: 95,
@@ -52,11 +56,19 @@ describe("CombatCollisionController", () => {
     expect(player.statusController.experience).toBe(5);
     expect(player.statusController.level).toBe(2);
     expect(result).toEqual({ defeatedEnemies: 1, scoreGained: 250 });
+    expect(onEnemyDefeated).toHaveBeenCalledOnce();
+    expect(onEnemyHit).not.toHaveBeenCalled();
   });
 
   it("通常のプレイヤー弾は敵へダメージを与えて消滅する", () => {
     const onPlayerBulletHit = vi.fn();
-    const controller = new CombatCollisionController({ onPlayerBulletHit });
+    const onEnemyHit = vi.fn();
+    const onEnemyDefeated = vi.fn();
+    const controller = new CombatCollisionController({
+      onPlayerBulletHit,
+      onEnemyHit,
+      onEnemyDefeated,
+    });
     const player = new Player();
     const enemy = new Enemy({ status: new EnemyStatusController({ hp: 3 }) });
     const bullet = new Bullet({
@@ -70,6 +82,8 @@ describe("CombatCollisionController", () => {
     expect(enemy.status.hp).toBe(1);
     expect(bullet.destroyed).toBe(true);
     expect(onPlayerBulletHit).toHaveBeenCalledWith({ x: 0, y: 0, damage: 2 });
+    expect(onEnemyHit).toHaveBeenCalledOnce();
+    expect(onEnemyDefeated).not.toHaveBeenCalled();
   });
 
   it("貫通弾は複数の敵へ一度ずつ命中する", () => {
@@ -93,7 +107,8 @@ describe("CombatCollisionController", () => {
   });
 
   it("敵弾はプレイヤーだけに命中する", () => {
-    const controller = new CombatCollisionController();
+    const onPlayerHit = vi.fn();
+    const controller = new CombatCollisionController({ onPlayerHit });
     const player = new Player();
     const enemy = new Enemy();
     const bullet = new Bullet({
@@ -107,6 +122,23 @@ describe("CombatCollisionController", () => {
     expect(player.statusController.health).toBe(1);
     expect(enemy.status.hp).toBe(enemy.status.maxHp);
     expect(bullet.destroyed).toBe(true);
+    expect(onPlayerHit).toHaveBeenCalledWith({ x: 0, y: 0, damage: 2 });
+  });
+
+  it("無敵時間中の敵弾では被弾演出を通知しない", () => {
+    const onPlayerHit = vi.fn();
+    const controller = new CombatCollisionController({ onPlayerHit });
+    const player = new Player();
+    const bullets = [
+      new Bullet({ status: new BulletStatus({ owner: "enemy", damage: 1 }) }),
+      new Bullet({ status: new BulletStatus({ owner: "enemy", damage: 1 }) }),
+    ];
+    placeAtOrigin(player, ...bullets);
+
+    controller.resolve({ player, enemies: [], bullets });
+
+    expect(player.statusController.health).toBe(2);
+    expect(onPlayerHit).toHaveBeenCalledTimes(1);
   });
 
   it("貫通設定の敵弾もプレイヤーへ接触すると消滅する", () => {

@@ -20,15 +20,18 @@ export class BulletFactory {
    * @param options.position 弾の生成座標
    * @param options.angle 弾を飛ばす角度
    * @param options.owner 弾を発射した陣営
+   * @param options.range 弾が消滅するまでの最大移動距離
    * @returns {Bullet}
    */
-  create({ definition, position, angle, owner }) {
+  create({ definition, position, angle, owner, range = null }) {
     const view = this.#createView(definition.imageId);
+    // 射程が指定された場合は弾速から生存時間へ変換する
+    const lifetime = resolveBulletLifetime(definition, range);
     const bullet = new Bullet({
       view,
       status: new BulletStatus({
         damage: definition.damage,
-        lifetime: definition.lifetime,
+        lifetime,
         owner,
         piercing: definition.piercing,
       }),
@@ -70,6 +73,18 @@ export class BulletFactory {
     );
     return fallback;
   }
+}
+
+/**
+ * 射程と弾速から弾の生存時間を求める
+ * @param definition 弾の定義
+ * @param range 弾が消滅するまでの最大移動距離
+ * @returns {number}
+ */
+export function resolveBulletLifetime(definition, range) {
+  return Number.isFinite(range) && range > 0 && definition.speed > 0
+    ? range / definition.speed
+    : definition.lifetime;
 }
 
 /**

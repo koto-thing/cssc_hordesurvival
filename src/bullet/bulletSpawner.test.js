@@ -25,6 +25,7 @@ describe("BulletSpawner", () => {
       position: { x: 10, y: 20 },
       angle: 1,
       owner: "player",
+      range: null,
     });
 
     expect(result).toBe(bullet);
@@ -34,6 +35,7 @@ describe("BulletSpawner", () => {
         position: { x: 10, y: 20 },
         angle: 1,
         owner: "player",
+        range: null,
       },
     ]);
     expect(spawned).toEqual([bullet]);
@@ -54,5 +56,29 @@ describe("BulletSpawner", () => {
         owner: "player",
       }),
     ).toThrow("Unknown bullet ID: missing");
+  });
+
+  it("キャラクター固有の射程をファクトリへ渡す", () => {
+    const created = [];
+    const spawner = new BulletSpawner({
+      bulletDefinitions: { normal: { speed: 500 } },
+      bulletFactory: {
+        create(options) {
+          created.push(options);
+          return {};
+        },
+      },
+      onSpawn() {},
+    });
+
+    spawner.spawn({
+      bulletId: "normal",
+      position: { x: 0, y: 0 },
+      angle: 0,
+      owner: "player",
+      range: 800,
+    });
+
+    expect(created[0].range).toBe(800);
   });
 });

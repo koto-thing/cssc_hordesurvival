@@ -3,7 +3,7 @@ import "./style.css";
 import { AssetManager, Game, SceneManager } from "./engine/index.js";
 import { TitleScene } from "./scenes/TitleScene.js";
 import { GameScene } from "./scenes/GameScene.js";
-import { assetList } from "./assets/AssetList.js";
+import { bulletList } from "./assets/assetList.js";
 
 async function main() {
   // ゲーム本体を作成
@@ -11,7 +11,7 @@ async function main() {
 
   // アセット登録
   const assetManager = new AssetManager();
-  assetManager.register(assetList);
+  assetManager.register(bulletList);
 
   await assetManager.load();
 

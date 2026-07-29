@@ -92,11 +92,12 @@ export class GameObject {
       return false;
     }
 
-    const [component] = this.components.splice(index, 1);
+    const component = this.components[index];
     if (component === this.transform) {
       throw new Error("Transform cannot be removed");
     }
 
+    this.components.splice(index, 1);
     component.onDestroy();
     component.gameObject = null;
     return true;

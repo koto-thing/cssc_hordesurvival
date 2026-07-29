@@ -25,11 +25,6 @@ export class TitleScene extends Scene {
       text: "Click to Start",
       font: "20px sans-serif",
     });
-    this.startText.cursor = "pointer";
-
-    this.startText.on("click", () => {
-      this.sceneManager.changeScene("game");
-    });
 
     this.root.addChild(this.background, this.titleText, this.startText);
     window.addEventListener("mousedown", this.mouseDownHandler);
@@ -45,7 +40,6 @@ export class TitleScene extends Scene {
 
   exit() {
     window.removeEventListener("mousedown", this.mouseDownHandler);
-    console.log("Exiting TitleScene");
   }
 
   resize(width, height) {

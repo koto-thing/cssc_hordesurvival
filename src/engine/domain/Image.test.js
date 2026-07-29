@@ -9,6 +9,19 @@ class Graphics {
     return this;
   }
 
+  beginStroke() {
+    return this;
+  }
+
+  setStrokeStyle() {
+    return this;
+  }
+
+  drawCircle() {
+    this.drewCircle = true;
+    return this;
+  }
+
   drawRect() {
     return this;
   }
@@ -40,6 +53,14 @@ class Bitmap {
 class Shape {
   constructor() {
     this.graphics = new Graphics();
+  }
+
+  cache(x, y, width, height) {
+    this.cacheBounds = { x, y, width, height };
+  }
+
+  uncache() {
+    this.cacheBounds = null;
   }
 }
 
@@ -102,5 +123,26 @@ describe("Image", () => {
     expect(image.bitmap.filters).toHaveLength(1);
     expect(image.bitmap.alpha).toBe(0.4);
     expect(image.mouseEnabled).toBe(false);
+  });
+
+  it("shows a circular fallback when no source is available", () => {
+    const image = new Image({
+      width: 48,
+      height: 48,
+      fallback: {
+        shape: "circle",
+        fillColor: "#5dd6ff",
+      },
+    });
+
+    expect(image.bitmap.visible).toBe(false);
+    expect(image.fallbackShape.visible).toBe(true);
+    expect(image.fallbackShape.graphics.drewCircle).toBe(true);
+    expect(image.fallbackShape.cacheBounds).toEqual({
+      x: 0,
+      y: 0,
+      width: 48,
+      height: 48,
+    });
   });
 });

@@ -1,4 +1,4 @@
-﻿export const assetList = [
+﻿export const bulletList = [
   {
     id: "testImg",
     src: `${import.meta.env.BASE_URL}assets/images/test.png`,
@@ -7,6 +7,11 @@
   {
     id: "menuIcon",
     src: `${import.meta.env.BASE_URL}assets/images/HamburgerIcon.svg`,
+    type: createjs.Types.IMAGE,
+  },
+  {
+    id: "hurtIcon",
+    src: `${import.meta.env.BASE_URL}assets/images/Hurt.svg`,
     type: createjs.Types.IMAGE,
   },
   {

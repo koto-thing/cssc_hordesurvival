@@ -21,6 +21,7 @@ export class Image extends UIElement {
     color = "#ffffff",
     alpha = 1,
     raycastTarget = true,
+    fallback = null,
   } = {}) {
     const sourceSize = getSourceSize(source);
     super({
@@ -34,13 +35,16 @@ export class Image extends UIElement {
     this.color = color;
     this.imageAlpha = clamp01(alpha);
     this.raycastTarget = raycastTarget;
+    this.fallback = fallback;
 
     this.bitmap = new createjs.Bitmap(source);
     this.bitmap.mouseEnabled = false;
+    this.fallbackShape = new createjs.Shape();
+    this.fallbackShape.mouseEnabled = false;
     this.clipMask = new createjs.Shape();
     this.hitArea = new createjs.Shape();
 
-    this.addChild(this.bitmap);
+    this.addChild(this.fallbackShape, this.bitmap);
     this.redraw();
   }
 
@@ -133,9 +137,58 @@ export class Image extends UIElement {
       this.#layoutBitmap(sourceSize.width, sourceSize.height, targetWidth, targetHeight);
     }
 
+    this.#drawFallback(sourceSize.width <= 0 || sourceSize.height <= 0);
     this.#applyColor();
     this.hitArea.graphics.clear().beginFill("#000000").drawRect(0, 0, this.uiWidth, this.uiHeight);
     this.setRaycastTarget(this.raycastTarget);
+  }
+
+  /**
+   * 画像がない場合の代替表示を描画する
+   * @param visible {boolean} 代替表示を表示するか
+   */
+  #drawFallback(visible) {
+    this.bitmap.visible = !visible;
+    this.fallbackShape.visible = visible && this.fallback !== null;
+    this.fallbackShape.uncache?.();
+    this.fallbackShape.graphics.clear();
+
+    if (!this.fallbackShape.visible) {
+      return;
+    }
+
+    const {
+      shape = "rect",
+      fillColor = "#808080",
+      strokeColor = null,
+      strokeWidth = 0,
+    } = this.fallback;
+    const graphics = this.fallbackShape.graphics;
+
+    if (strokeColor && strokeWidth > 0) {
+      graphics.beginStroke(strokeColor).setStrokeStyle(strokeWidth);
+    }
+
+    graphics.beginFill(fillColor);
+
+    if (shape === "circle") {
+      const radius = Math.max(0, (Math.min(this.uiWidth, this.uiHeight) - strokeWidth) / 2);
+      graphics.drawCircle(this.uiWidth / 2, this.uiHeight / 2, radius);
+      this.#cacheFallback();
+      return;
+    }
+
+    graphics.drawRect(0, 0, this.uiWidth, this.uiHeight);
+    this.#cacheFallback();
+  }
+
+  /**
+   * StageGLでもベクターのフォールバックを表示できるようキャッシュする
+   */
+  #cacheFallback() {
+    if (this.uiWidth > 0 && this.uiHeight > 0) {
+      this.fallbackShape.cache?.(0, 0, this.uiWidth, this.uiHeight);
+    }
   }
 
   /**

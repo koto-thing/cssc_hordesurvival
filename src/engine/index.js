@@ -28,6 +28,7 @@ export {
 } from "./infrastructure/VFXShader.js";
 
 export { clamp, clamp01, inverseLerp, lerp, remap } from "./math/MathUtils.js";
+export { MathUtil } from "./math/MathUtil.js";
 
 export { AssetManager } from "./infrastructure/AssetManager.js";
 export { Game } from "./infrastructure/Game.js";

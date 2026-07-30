@@ -1,6 +1,5 @@
 name: Deploy
 
-# mainブランチのCI完了後にデプロイ処理を開始
 on:
   workflow_run:
     workflows:
@@ -20,27 +19,51 @@ concurrency:
 
 jobs:
   deploy:
-    # 自動実行では成功したCIのみを対象とし、手動実行は常に許可
     if: >-
       github.event_name == 'workflow_dispatch' ||
       github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: cssc_hordesurvival
 
     steps:
-      # CIで検証したコミットを指定してチェックアウト
-      - name: Check out verified commit
+      - name: Check out verified game commit
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          path: cssc_hordesurvival
+
+      - name: Check out LoudnessMeter
+        uses: actions/checkout@v4
+        with:
+          repository: koto-thing/LoudnessMeter
+          ref: c828effc8ccff7f61312fcbe53693aa7c2d30127
+          path: LoudnessMeter
 
       - name: Set up Vite+
         uses: voidzero-dev/setup-vp@v1
         with:
           node-version: "24"
+          working-directory: cssc_hordesurvival
           cache: true
+          run-install: false
 
-      - name: Install dependencies
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+
+      - name: Install LoudnessMeter dependencies
+        run: npm ci
+        working-directory: LoudnessMeter/packages/loudness-web
+
+      - name: Build LoudnessMeter web package
+        run: npm run build
+        working-directory: LoudnessMeter/packages/loudness-web
+
+      - name: Install game dependencies
         run: vp install
 
       - name: Build
@@ -52,6 +75,6 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./dist/
+          local-dir: ./cssc_hordesurvival/dist/
           server-dir: /koto-thing-game/cssc_horde_survival/
           dangerous-clean-slate: false

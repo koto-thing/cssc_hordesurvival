@@ -20,3 +20,7 @@ class TestFilter {}
 globalThis.createjs ??= {};
 globalThis.createjs.Container ??= TestContainer;
 globalThis.createjs.Filter ??= TestFilter;
+globalThis.createjs.Types ??= {
+  IMAGE: "image",
+  SOUND: "sound",
+};

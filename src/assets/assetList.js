@@ -1,72 +1,72 @@
 ﻿export const bulletList = [
   {
     id: "testImg",
-    src: `${import.meta.env.BASE_URL}assets/images/test.png`,
+    src: new URL("./static/images/test.png", import.meta.url).href,
     type: createjs.Types.IMAGE,
   },
   {
     id: "menuIcon",
-    src: `${import.meta.env.BASE_URL}assets/images/HamburgerIcon.svg`,
+    src: new URL("./static/images/HamburgerIcon.svg", import.meta.url).href,
     type: createjs.Types.IMAGE,
   },
   {
     id: "hurtBreakIcon",
-    src: `${import.meta.env.BASE_URL}assets/images/HurtBreak.svg`,
+    src: new URL("./static/images/HurtBreak.svg", import.meta.url).href,
     type: createjs.Types.IMAGE,
   },
   {
     id: "testAudio",
-    src: `${import.meta.env.BASE_URL}assets/audio/test.mp3`,
+    src: new URL("./static/audio/test.mp3", import.meta.url).href,
     type: createjs.Types.SOUND,
   },
   {
     id: "gameSceneMusic",
-    src: `${import.meta.env.BASE_URL}assets/audio/8bit-sentou-two_Loop.ogg`,
+    src: new URL("./static/audio/8bit-sentou-two_Loop.ogg", import.meta.url).href,
     type: createjs.Types.SOUND,
   },
   {
     id: "levelUpSound",
-    src: `${import.meta.env.BASE_URL}assets/audio/powerUp.wav`,
+    src: new URL("./static/audio/powerUp.wav", import.meta.url).href,
     type: createjs.Types.SOUND,
   },
   {
     id: "playerHitSound",
-    src: `${import.meta.env.BASE_URL}assets/audio/playerHit.wav`,
+    src: new URL("./static/audio/playerHit.wav", import.meta.url).href,
     type: createjs.Types.SOUND,
   },
   {
     id: "enemyHitSound",
-    src: `${import.meta.env.BASE_URL}assets/audio/enemyHit.wav`,
+    src: new URL("./static/audio/enemyHit.wav", import.meta.url).href,
     type: createjs.Types.SOUND,
   },
   {
     id: "enemyDefeatedSound",
-    src: `${import.meta.env.BASE_URL}assets/audio/enemyDie.wav`,
+    src: new URL("./static/audio/enemyDie.wav", import.meta.url).href,
     type: createjs.Types.SOUND,
   },
   {
     id: "buttonClickSound",
-    src: `${import.meta.env.BASE_URL}assets/audio/buttonClick.wav`,
+    src: new URL("./static/audio/buttonClick.wav", import.meta.url).href,
     type: createjs.Types.SOUND,
   },
   {
     id: "gameOverSound",
-    src: `${import.meta.env.BASE_URL}assets/audio/gameOver.wav`,
+    src: new URL("./static/audio/gameOver.wav", import.meta.url).href,
     type: createjs.Types.SOUND,
   },
   {
     id: "gameClearSound",
-    src: `${import.meta.env.BASE_URL}assets/audio/gameClear.wav`,
+    src: new URL("./static/audio/gameClear.wav", import.meta.url).href,
     type: createjs.Types.SOUND,
   },
   {
     id: "slimeRun",
-    src: `${import.meta.env.BASE_URL}assets/images/slime_run.png`,
+    src: new URL("./static/images/slime_run.png", import.meta.url).href,
     type: createjs.Types.IMAGE,
   },
   {
     id: "slimeDie",
-    src: `${import.meta.env.BASE_URL}assets/images/slime_die.png`,
+    src: new URL("./static/images/slime_die.png", import.meta.url).href,
     type: createjs.Types.IMAGE,
   },
 ];

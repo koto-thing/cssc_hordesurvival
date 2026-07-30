@@ -1,5 +1,3 @@
-import "./style.css";
-
 import { AssetManager, Game, SceneManager, setUIInteractionFeedback } from "./engine/index.js";
 import { TitleScene } from "./scenes/titleScene.js";
 import { GameScene } from "./scenes/gameScene.js";

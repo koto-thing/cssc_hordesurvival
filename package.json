@@ -9,12 +9,8 @@
     "preview": "vp preview",
     "prepare": "vp config"
   },
-  "dependencies": {
-    "@loudness-meter/web": "file:../LoudnessMeter/packages/loudness-web"
-  },
   "devDependencies": {
     "@types/createjs": "^0.0.32",
-    "@types/node": "^26.1.2",
     "vite": "npm:@voidzero-dev/vite-plus-core@0.2.6",
     "vite-plus": "0.2.6"
   },

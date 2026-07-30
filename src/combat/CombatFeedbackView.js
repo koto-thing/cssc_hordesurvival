@@ -24,7 +24,7 @@ export class CombatFeedbackView {
     const damageText = new Text({
       text: String(damage),
       font: "700 20px sans-serif",
-      color: "#fff4a8",
+      color: "#b22222",
     });
     damageText.x = -damageText.uiWidth / 2;
     damageText.y = -38;
@@ -34,7 +34,7 @@ export class CombatFeedbackView {
     for (let index = 0; index < PARTICLE_COUNT; index += 1) {
       const angle = (Math.PI * 2 * index) / PARTICLE_COUNT;
       const particle = new createjs.Shape();
-      particle.graphics.beginFill("#fff4a8").drawCircle(0, 0, 2);
+      particle.graphics.beginFill("#d2691e").drawCircle(0, 0, 2);
       particle.cache(-2, -2, 4, 4);
       container.addChild(particle);
       particles.push({

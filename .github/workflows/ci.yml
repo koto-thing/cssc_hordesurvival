@@ -1,46 +1,68 @@
 name: CI
 
-# push または pull_request がトリガーされたときにワークフローを実行
 on:
   push:
   pull_request:
 
-# 読み取り専用
 permissions:
   contents: read
 
-# 同じブランチで複数のワークフローが同時に実行されるのを防ぐ
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# ワークフローのジョブを定義
 jobs:
-  # バリデーションジョブ
   validate:
-    name: Check, test, and build # ジョブ名
-    runs-on: ubuntu-latest # 使用する仮想環境
-    timeout-minutes: 10 # タイムアウト時間（分）
+    name: Check, test, and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: cssc_hordesurvival
 
-    # ワークフローのステップを定義
     steps:
-      - name: Check out repository # リポジトリのチェックアウト
-        uses: actions/checkout@v4 # GitHub Actions公式のチェックアウトアクションを使用
-
-      - name: Set up Vite+ # Vite+のセットアップ
-        uses: voidzero-dev/setup-vp@v1 # GitHub Actions公式のセットアップアクションを使用
+      # Keep both repositories as siblings to match the local file dependency
+      - name: Check out game repository
+        uses: actions/checkout@v4
         with:
-          node-version: "24" # Node.jsのバージョンを指定
-          cache: true # キャッシュを有効化して依存関係のインストールを高速化
+          path: cssc_hordesurvival
 
-      - name: Install dependencies # 依存関係のインストール
+      - name: Check out LoudnessMeter
+        uses: actions/checkout@v4
+        with:
+          repository: koto-thing/LoudnessMeter
+          ref: c828effc8ccff7f61312fcbe53693aa7c2d30127
+          path: LoudnessMeter
+
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@v1
+        with:
+          node-version: "24"
+          working-directory: cssc_hordesurvival
+          cache: true
+          run-install: false
+
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+
+      - name: Install LoudnessMeter dependencies
+        run: npm ci
+        working-directory: LoudnessMeter/packages/loudness-web
+
+      - name: Build LoudnessMeter web package
+        run: npm run build
+        working-directory: LoudnessMeter/packages/loudness-web
+
+      - name: Install game dependencies
         run: vp install
 
-      - name: Check lint and types # Lintと型チェックの実行
+      - name: Check lint and types
         run: vp check --no-fmt
 
-      - name: Run tests # テストの実行
+      - name: Run tests
         run: vp test
 
-      - name: Build # ビルドの実行
+      - name: Build
         run: vp build

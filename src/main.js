@@ -6,6 +6,7 @@ import { GameAudioSettings } from "./settings/GameAudioSettings.js";
 import { MainMenuScene } from "./scenes/mainMenuScene.js";
 import { CreditsScene } from "./scenes/creditsScene.js";
 import { GameSoundEffects } from "./audio/GameSoundEffects.js";
+import { GameMasterAudio } from "./audio/GameMasterAudio.js";
 
 async function main() {
   // ゲーム本体を作成
@@ -16,6 +17,8 @@ async function main() {
   assetManager.register(bulletList);
 
   await assetManager.load();
+  const masterAudio = new GameMasterAudio();
+  await masterAudio.initialize();
   const audioSettings = new GameAudioSettings();
   const soundEffects = new GameSoundEffects();
   setUIInteractionFeedback(() => soundEffects.playButtonClick());

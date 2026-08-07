@@ -35,39 +35,13 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           path: cssc_hordesurvival
 
-      - name: Check out LoudnessMeter
-        uses: actions/checkout@v4
-        with:
-          repository: koto-thing/LoudnessMeter
-          ref: c828effc8ccff7f61312fcbe53693aa7c2d30127
-          path: LoudnessMeter
-
-      - name: Set up Vite+
-        uses: voidzero-dev/setup-vp@v1
-        with:
-          node-version: "24"
-          working-directory: cssc_hordesurvival
-          cache: true
-          run-install: false
-
-      - name: Install wasm-pack
-        uses: taiki-e/install-action@v2
-        with:
-          tool: wasm-pack
-
-      - name: Install LoudnessMeter dependencies
-        run: npm ci
-        working-directory: LoudnessMeter/packages/loudness-web
-
-      - name: Build LoudnessMeter web package
-        run: npm run build
-        working-directory: LoudnessMeter/packages/loudness-web
-
-      - name: Install game dependencies
-        run: vp install
-
-      - name: Build
-        run: vp build
+      - name: Prepare source deployment files
+        shell: bash
+        run: |
+          rm -rf _deploy
+          mkdir -p _deploy
+          cp index.html _deploy/index.html
+          cp -R src _deploy/src
 
       - name: Deploy to server
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -75,6 +49,6 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./cssc_hordesurvival/dist/
+          local-dir: ./cssc_hordesurvival/_deploy/
           server-dir: /koto-thing-game/cssc_horde_survival/
           dangerous-clean-slate: false

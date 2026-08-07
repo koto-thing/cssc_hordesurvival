@@ -24,6 +24,8 @@ export class LevelUpCelebrationView {
       color: "#fff2a8",
       textAlign: "center",
       verticalAlign: "middle",
+      outlineColor: "#1a1714",
+      outlineWidth: 2,
     });
     this.label.x = -120;
     this.label.y = -105;
@@ -57,11 +59,13 @@ export class LevelUpCelebrationView {
       return;
     }
 
+    // 経過時間を加算して演出の進行度を計算する
     this.elapsed = Math.min(EFFECT_DURATION, this.elapsed + Math.max(0, Number(deltaTime) || 0));
     const progress = this.elapsed / EFFECT_DURATION;
     const burst = easeOutCubic(Math.min(1, progress * 2.4));
     const fade = 1 - easeInCubic(Math.max(0, (progress - 0.68) / 0.32));
 
+    // 演出の各要素を進行度に応じて変化させる
     this.rays.rotation = progress * 38;
     this.rays.scaleX = this.rays.scaleY = 0.25 + burst * 0.95;
     this.rays.alpha = fade * (1 - progress * 0.35);
@@ -70,11 +74,13 @@ export class LevelUpCelebrationView {
     this.innerRing.alpha = fade;
     this.outerRing.alpha = fade * 0.85;
 
+    // ラベルの表示を進行度に応じて変化させる
     const labelIn = easeOutCubic(Math.min(1, progress / 0.24));
     this.label.y = -78 - labelIn * 42 - Math.max(0, progress - 0.7) * 28;
     this.label.scaleX = this.label.scaleY = 0.72 + labelIn * 0.28;
     this.label.alpha = Math.min(labelIn, fade);
 
+    // スパークの位置・回転・透明度・縦方向の拡大率を進行度に応じて変化させる
     this.sparks.forEach((spark, index) => {
       const angle = (index / SPARK_COUNT) * Math.PI * 2 + progress * 0.35;
       const distance = 28 + burst * (72 + (index % 4) * 11);
@@ -85,6 +91,7 @@ export class LevelUpCelebrationView {
       spark.scaleY = 0.7 + burst * 1.4;
     });
 
+    // 演出が終了したら非表示にする
     if (this.elapsed >= EFFECT_DURATION) {
       this.view.visible = false;
     }
@@ -96,6 +103,9 @@ export class LevelUpCelebrationView {
     this.sparks = [];
   }
 
+  /**
+   * スパークの表示要素を作成する
+   */
   #createSparks() {
     for (let index = 0; index < SPARK_COUNT; index += 1) {
       const spark = new createjs.Shape();
@@ -115,11 +125,22 @@ export function easeOutCubic(value) {
   return 1 - (1 - ratio) ** 3;
 }
 
+/**
+ * 0から1の値をゆっくり立ち上がる補間値へ変換する
+ * @param value 0から1の値
+ * @returns {number}
+ */
 function easeInCubic(value) {
   const ratio = Math.min(1, Math.max(0, Number(value) || 0));
   return ratio ** 3;
 }
 
+/**
+ * 指定した色と線の太さでリングを作成する
+ * @param color 指定色
+ * @param thickness 線の太さ
+ * @returns {createjs.Shape}
+ */
 function createRing(color, thickness) {
   const ring = new createjs.Shape();
   ring.graphics
@@ -130,6 +151,10 @@ function createRing(color, thickness) {
   return ring;
 }
 
+/**
+ * 指定したShapeに放射状の光線を描画する
+ * @param shape 光線を描画するShape
+ */
 function drawRays(shape) {
   const rayCount = 12;
   for (let index = 0; index < rayCount; index += 1) {

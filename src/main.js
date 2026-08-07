@@ -15,6 +15,7 @@ async function main() {
   const assetManager = new AssetManager();
   assetManager.register(bulletList);
 
+  // アセットをロード
   await assetManager.load();
   const audioSettings = new GameAudioSettings();
   const soundEffects = new GameSoundEffects();

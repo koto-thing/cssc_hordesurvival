@@ -1,4 +1,8 @@
-﻿export const bulletList = {
+﻿/**
+ * 弾の種類とその特性を定義するオブジェクト
+ * @type {{normal: {imageId: string, speed: number, damage: number, lifetime: number, piercing: boolean, movementType: string}, piercing: {imageId: string, speed: number, damage: number, lifetime: number, piercing: boolean, movementType: string}, slowPower: {imageId: string, speed: number, damage: number, lifetime: number, piercing: boolean, movementType: string}, wave: {imageId: string, speed: number, damage: number, lifetime: number, piercing: boolean, movementType: string, amplitude: number, frequency: number}, enemyNormal: {imageId: string, speed: number, damage: number, lifetime: number, piercing: boolean, movementType: string}, enemyPredictive: {imageId: string, speed: number, damage: number, lifetime: number, piercing: boolean, movementType: string}}}
+ */
+export const bulletList = {
   normal: {
     imageId: "normalBullet",
     speed: 500,

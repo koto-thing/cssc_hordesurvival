@@ -49,11 +49,20 @@ export class Button extends UIElement {
     this.redraw();
   }
 
+  /**
+   * ボタンの表示文字列を変更する
+   * @param text 新しい文字列
+   */
   setText(text) {
     this.textView.text = text;
     this.redraw();
   }
 
+  /**
+   * ボタンがクリックされたときに呼び出されるリスナーを登録する
+   * @param listener クリック時に呼び出される関数
+   * @returns {(function(): void)|*} 登録解除用の関数
+   */
   onClick(listener) {
     this.clickListeners.add(listener);
 
@@ -71,6 +80,10 @@ export class Button extends UIElement {
     this.redraw();
   }
 
+  /**
+   * ボタンの表示を再描画する
+   * @param color 現在の状態に応じた色を指定する（省略時は状態に応じた色を自動選択）
+   */
   redraw(color = null) {
     const currentColor = color ?? (this.interactable ? this.colors.normal : this.colors.disabled);
 
@@ -88,40 +101,59 @@ export class Button extends UIElement {
     this.cache(0, 0, this.uiWidth, this.uiHeight);
   }
 
+  /**
+   * ボタンを破棄する
+   */
   dispose() {
     this.clickListeners.clear();
     super.dispose();
   }
 
+  /**
+   * ボタンのマウスオーバー時の処理
+   */
   #handleMouseOver = () => {
     if (this.interactable) {
       this.redraw(this.colors.hover);
     }
   };
 
+  /**
+   * ボタンのマウスアウト時の処理
+   */
   #handleMouseOut = () => {
     if (this.interactable) {
       this.redraw(this.colors.normal);
     }
   };
 
+  /**
+   * ボタンのマウスダウン時の処理
+   */
   #handleMouseDown = () => {
     if (this.interactable) {
       this.redraw(this.colors.pressed);
     }
   };
 
+  /**
+   * ボタンのマウスアップ時の処理
+   */
   #handlePressUp = () => {
     if (this.interactable) {
       this.redraw(this.colors.hover);
     }
   };
 
+  /**
+   * ボタンのクリック時の処理
+   */
   #handleClick = () => {
     if (!this.interactable) {
       return;
     }
 
+    // UI操作のフィードバックを通知する
     notifyUIInteraction();
     for (const listener of this.clickListeners) {
       listener();

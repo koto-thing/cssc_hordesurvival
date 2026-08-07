@@ -34,7 +34,9 @@ export class HUDUIView extends GameObject {
       ["スコア", "0"],
     ];
 
+    // ラベルと値のテキストを生成
     for (const [label, value] of rows) {
+      // ラベル
       this.labels.push(
         new Text({
           text: label,
@@ -48,6 +50,7 @@ export class HUDUIView extends GameObject {
         }),
       );
 
+      // 値
       this.values.push(
         new Text({
           text: value,
@@ -63,6 +66,7 @@ export class HUDUIView extends GameObject {
       );
     }
 
+    // メニューアイコン
     this.menuIcon = new Image({
       source: menuIconSource,
       width: MENU_ICON_SIZE,
@@ -78,8 +82,10 @@ export class HUDUIView extends GameObject {
       onMenuRequested();
     });
 
+    // メニューアイコンをHUDに追加
     this.view.addChild(this.menuIcon);
 
+    // ラベルと値をHUDに追加
     this.labels.forEach((label, index) => {
       label.y = PANEL_PADDING + index * ROW_HEIGHT;
 
@@ -109,6 +115,7 @@ export class HUDUIView extends GameObject {
   setRemainingTime(seconds) {
     this.remainingTime = Math.max(0, Number.isFinite(seconds) ? seconds : 0);
 
+    // 残り時間を分:秒形式に変換して表示する
     const totalSeconds = Math.ceil(this.remainingTime);
     const minutes = Math.floor(totalSeconds / 60);
     const remainingSeconds = totalSeconds % 60;

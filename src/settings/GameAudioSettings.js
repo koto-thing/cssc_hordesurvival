@@ -33,6 +33,7 @@ export class GameAudioSettings {
     this._volume = clampVolume(value);
     this.#applyVolume();
 
+    // ストレージに保存する
     try {
       this.storage?.setItem(STORAGE_KEY, String(this._volume));
     } catch {
@@ -46,6 +47,7 @@ export class GameAudioSettings {
    */
   #loadVolume() {
     try {
+      // ストレージに保存されている音量を読み込む
       const storedValue = this.storage?.getItem(STORAGE_KEY);
       if (storedValue === null || storedValue === undefined) {
         return DEFAULT_VOLUME;

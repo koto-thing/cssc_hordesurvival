@@ -14,6 +14,10 @@ export class WaveBulletMoveController extends Component {
     this.elapsedTime = 0;
   }
 
+  /**
+   * 弾を進行方向に対して左右へ波打ちながら移動させる
+   * @param deltaTime
+   */
   tick(deltaTime) {
     const previousOffset = Math.sin(this.elapsedTime * this.frequency) * this.amplitude;
     this.elapsedTime += deltaTime;

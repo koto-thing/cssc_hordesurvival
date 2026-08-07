@@ -49,6 +49,10 @@ export class Text extends UIElement {
     this.redraw();
   }
 
+  /**
+   * ボタンの表示文字列を変更する
+   * @param text
+   */
   setText(text) {
     this.textView.text = text;
     if (this.outlineView !== null) {
@@ -57,6 +61,10 @@ export class Text extends UIElement {
     this.redraw();
   }
 
+  /**
+   * ボタンのフォントを変更する
+   * @param font
+   */
   setFont(font) {
     this.textView.font = font;
     if (this.outlineView !== null) {
@@ -65,27 +73,47 @@ export class Text extends UIElement {
     this.redraw();
   }
 
+  /**
+   * ボタンの表示色を変更する
+   * @param color
+   */
   setColor(color) {
     this.textView.color = color;
     this.redraw();
   }
 
+  /**
+   * ボタンの文字揃えを変更する
+   * @param textAlign
+   */
   setTextAlign(textAlign) {
     this.textAlign = textAlign;
     this.redraw();
   }
 
+  /**
+   * ボタンの縦方向の文字揃えを変更する
+   * @param verticalAlign
+   */
   setVerticalAlign(verticalAlign) {
     this.verticalAlign = verticalAlign;
     this.redraw();
   }
 
+  /**
+   * ボタンの表示サイズを変更する
+   * @param width
+   * @param height
+   */
   setSize(width, height) {
     this.autoWidth = false;
     this.autoHeight = false;
     super.setSize(width, height);
   }
 
+  /**
+   * ボタンの表示を再描画する
+   */
   redraw() {
     if (this.autoWidth) {
       this.uiWidth = Math.max(1, Math.ceil(this.textView.getMeasuredWidth()));
@@ -116,6 +144,10 @@ export class Text extends UIElement {
     );
   }
 
+  /**
+   * ボタンの横方向の文字位置を取得する
+   * @returns {number}
+   */
   #getHorizontalPosition() {
     if (this.textAlign === "center") {
       return this.uiWidth / 2;
@@ -128,6 +160,10 @@ export class Text extends UIElement {
     return 0;
   }
 
+  /**
+   * ボタンの縦方向の文字位置を取得する
+   * @returns {number}
+   */
   #getVerticalPosition() {
     const textHeight = this.textView.getMeasuredHeight();
 

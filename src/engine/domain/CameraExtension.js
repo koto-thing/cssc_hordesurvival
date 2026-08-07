@@ -63,22 +63,32 @@ export class CameraExtension extends Component {
     this.setTarget(target);
   }
 
+  /**
+   *  追従対象の位置を初期化する。Cameraの追従を停止する
+   */
   initialize() {
     this._resolveCamera();
     this.camera?.stopFollowing();
   }
 
+  /**
+   * Cameraの位置を更新する。CameraのlateTickより後に実行される
+   * @param deltaTime 前フレームからの経過時間
+   */
   lateTick(deltaTime) {
+    // Cameraが存在しない場合は処理を行わない
     const camera = this._resolveCamera();
     const targetPosition = getPosition(this.target);
     if (!camera || !targetPosition || !this.transform) {
       return;
     }
 
+    // deltaTimeが負の値や非数の場合は0にする
     const dt = Math.max(0, Number(deltaTime) || 0);
     this._updateVelocity(targetPosition, dt);
     const desired = this._desiredPosition(targetPosition);
 
+    // snapOnEnableが有効で、まだsnapしていない場合は即座に追従対象の位置へ移動する
     if (this.snapOnEnable && !this._hasSnapped) {
       this.transform.position = desired;
       this._hasSnapped = true;
@@ -87,6 +97,7 @@ export class CameraExtension extends Component {
       this.transform.y = damp(this.transform.y, desired.y, this.damping.y, dt);
     }
 
+    // LookAtが有効な場合は追従対象の方向を向くように回転する
     if (this.lookAt) {
       const angle =
         (Math.atan2(targetPosition.y - this.transform.y, targetPosition.x - this.transform.x) *
@@ -134,20 +145,26 @@ export class CameraExtension extends Component {
    * 対象がテレポートした際、先読み速度を発生させずカメラも同量移動する
    */
   onTargetWarped(deltaX, deltaY) {
+    // deltaX, deltaYが有限数であることを確認する
     const x = finite(deltaX, "deltaX");
     const y = finite(deltaY, "deltaY");
     if (this.transform) {
       this.transform.translate(x, y);
     }
 
+    // 追従対象の位置も同量移動することで、先読み速度を発生させない
     if (this._previousTargetPosition) {
       this._previousTargetPosition.x += x;
       this._previousTargetPosition.y += y;
     }
 
+    // CameraのlateTickより後にこの拡張が実行されても同じフレームへ反映する
     this.camera?.apply();
   }
 
+  /**
+   *  CameraExtensionを破棄する
+   */
   onDestroy() {
     this.camera = null;
     this.target = null;
@@ -172,16 +189,19 @@ export class CameraExtension extends Component {
    * @private
    */
   _updateVelocity(position, deltaTime) {
+    // 追従対象の位置が初期化されていない場合は速度を更新せず、現在位置を保存する
     if (this._previousTargetPosition === null || deltaTime <= 0) {
       this._previousTargetPosition = { ...position };
       return;
     }
 
+    // 追従対象の速度を計算する
     const velocity = {
       x: (position.x - this._previousTargetPosition.x) / deltaTime,
       y: (position.y - this._previousTargetPosition.y) / deltaTime,
     };
 
+    // 追従対象の速度を平滑化する
     const amount =
       this.lookAheadSmoothing === 0 ? 1 : 1 - Math.exp(-this.lookAheadSmoothing * deltaTime);
     this._smoothedVelocity.x += (velocity.x - this._smoothedVelocity.x) * amount;
@@ -196,6 +216,7 @@ export class CameraExtension extends Component {
    * @private
    */
   _desiredPosition(targetPosition) {
+    // 先読み距離を計算する
     let lookAheadX = this._smoothedVelocity.x * this.lookAheadTime;
     let lookAheadY = this._smoothedVelocity.y * this.lookAheadTime;
     const distance = Math.hypot(lookAheadX, lookAheadY);
@@ -205,11 +226,13 @@ export class CameraExtension extends Component {
       lookAheadY *= scale;
     }
 
+    // デッドゾーンを考慮した追従対象の位置を計算する
     const tracked = {
       x: targetPosition.x + this.offset.x + lookAheadX,
       y: targetPosition.y + this.offset.y + lookAheadY,
     };
 
+    // デッドゾーン内に追従対象がいる場合はカメラ位置を維持し、外に出た場合はデッドゾーンの端に追従対象を収める
     return {
       x: deadZonePosition(this.transform.x, tracked.x, this.deadZone.width / 2),
       y: deadZonePosition(this.transform.y, tracked.y, this.deadZone.height / 2),
@@ -310,10 +333,12 @@ function dampAngle(current, target, damping, deltaTime) {
  * @returns {number}
  */
 function deadZonePosition(cameraPosition, targetPosition, halfSize) {
+  // デッドゾーンの端に追従対象を収める
   if (targetPosition > cameraPosition + halfSize) {
     return targetPosition - halfSize;
   }
 
+  // デッドゾーンの端に追従対象を収める
   if (targetPosition < cameraPosition - halfSize) {
     return targetPosition + halfSize;
   }

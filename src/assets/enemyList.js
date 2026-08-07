@@ -1,4 +1,8 @@
-﻿export const enemyList = {
+﻿/**
+ * 敵の種類とそのパラメータを定義するオブジェクト
+ * @type {{slime: {animation: {initialClip: string, clips: {run: {imageId: string, frameWidth: number, frameHeight: number, frameRate: number, loop: boolean}, die: {imageId: string, frameWidth: number, frameHeight: number, frameRate: number, loop: boolean}}}, hp: number, speed: number, attack: number, experience: number, score: number, movementType: string}, fastSlime: {imageId: string, hp: number, speed: number, attack: number, experience: number, score: number, movementType: string}, shooterSlime: {imageId: string, fallbackColor: string, hp: number, speed: number, attack: number, experience: number, score: number, movementType: string, shooting: {bulletId: string, bulletSpeed: number, interval: number, aimType: string}}, predictiveShooterSlime: {imageId: string, fallbackColor: string, hp: number, speed: number, attack: number, experience: number, score: number, movementType: string, shooting: {bulletId: string, bulletSpeed: number, interval: number, aimType: string}}}}
+ */
+export const enemyList = {
   slime: {
     animation: {
       initialClip: "run",

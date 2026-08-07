@@ -104,6 +104,7 @@ export class LevelUpView {
    * @param deltaTime 前フレームからの経過時間
    */
   tick(deltaTime) {
+    // deltaTimeが負の値や数値以外の場合は0として扱う
     const dt = Math.max(0, Number(deltaTime) || 0);
     if (this.revealDelay > 0) {
       this.revealDelay = Math.max(0, this.revealDelay - dt);
@@ -113,19 +114,29 @@ export class LevelUpView {
       this.view.visible = true;
     }
 
+    // パネル登場アニメーションを進める
     if (!this.view.visible || this.enterElapsed >= PANEL_ENTER_DURATION) {
       return;
     }
 
+    // 経過時間を加算して登場アニメーションの進行度を計算する
     this.enterElapsed = Math.min(PANEL_ENTER_DURATION, this.enterElapsed + dt);
     this.#applyEnterAnimation();
   }
 
+  /**
+   * パネルを非表示にする
+   */
   hide() {
     this.view.visible = false;
     this.revealDelay = 0;
   }
 
+  /**
+   * パネルを表示領域の中央へ配置する
+   * @param width
+   * @param height
+   */
   layout(width, height) {
     this.overlay.graphics.clear().beginFill(UI_THEME.overlayStrong).drawRect(0, 0, width, height);
     this.overlay.cache(0, 0, width, height);
@@ -141,11 +152,17 @@ export class LevelUpView {
     this.dialog.y = (height - PANEL_HEIGHT * scale) / 2;
   }
 
+  /**
+   * UIイベントと表示要素を破棄する
+   */
   dispose() {
     this.#disposeButtons();
     this.view.removeAllChildren();
   }
 
+  /**
+   * 強化候補ボタンを破棄する
+   */
   #disposeButtons() {
     for (const button of this.choiceButtons) {
       button.dispose();
@@ -154,6 +171,9 @@ export class LevelUpView {
     this.choiceButtons = [];
   }
 
+  /**
+   * パネル登場アニメーションを適用する
+   */
   #applyEnterAnimation() {
     const progress = Math.min(1, this.enterElapsed / PANEL_ENTER_DURATION);
     const eased = 1 - (1 - progress) ** 3;
@@ -184,6 +204,7 @@ export function formatUpgradeCardText(choice) {
 export function wrapText(text, maxCharacters) {
   const lineLength = Math.max(1, Math.floor(maxCharacters));
 
+  // 改行を維持しつつ、指定文字数ごとに分割して再結合する
   return String(text)
     .split("\n")
     .flatMap((line) => {
@@ -191,6 +212,7 @@ export function wrapText(text, maxCharacters) {
         return [""];
       }
 
+      // 指定文字数ごとに分割する
       const wrappedLines = [];
       for (let index = 0; index < line.length; index += lineLength) {
         wrappedLines.push(line.slice(index, index + lineLength));

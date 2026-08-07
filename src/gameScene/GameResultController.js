@@ -37,6 +37,11 @@ export class GameResultController {
     return true;
   }
 
+  /**
+   * 終了状態を設定する
+   * @param result 終了状態
+   * @returns {boolean} 終了状態を設定できた場合はtrue
+   */
   #finish(result) {
     if (this.result !== null) {
       return false;

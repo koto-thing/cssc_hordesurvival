@@ -72,12 +72,14 @@ export class CreditsScene extends Scene {
       return;
     }
 
+    // 背景を描画してキャッシュする
     this.background.graphics
       .clear()
       .beginFill(UI_THEME.backgroundDeep)
       .drawRect(0, 0, this.width, this.height);
     this.background.cache(0, 0, this.width, this.height);
 
+    // UIを配置する
     this.heading.x = (this.width - this.heading.uiWidth) / 2;
     this.heading.y = this.height * 0.25;
     this.credits.x = (this.width - this.credits.uiWidth) / 2;

@@ -52,10 +52,18 @@ export class Camera extends Component {
     this._originalTargetTransform = null;
   }
 
+  /**
+   * カメラの拡大率を返す
+   * @returns {number}
+   */
   get zoom() {
     return this._zoom;
   }
 
+  /**
+   * カメラの拡大率を設定する
+   * @param value
+   */
   set zoom(value) {
     const zoom = positive(value, "zoom");
     this._zoom = Math.min(this.maxZoom ?? zoom, Math.max(this.minZoom ?? zoom, zoom));
@@ -96,11 +104,18 @@ export class Camera extends Component {
     };
   }
 
+  /**
+   * 初期化処理を行う
+   */
   initialize() {
     this._rememberTargetTransform();
     this.apply();
   }
 
+  /**
+   * lateTick処理を行う
+   * @param deltaTime
+   */
   lateTick(deltaTime) {
     this._updateFollow(deltaTime);
     this.apply();

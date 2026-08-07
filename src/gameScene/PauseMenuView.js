@@ -138,6 +138,7 @@ export class PauseMenuView {
   #layoutContents() {
     const centeredX = (PANEL_WIDTH - BUTTON_WIDTH) / 2;
 
+    // メニューとオプション画面のUIをパネル内へ配置する
     this.title.x = (PANEL_WIDTH - this.title.uiWidth) / 2;
     this.title.y = 38;
     [this.returnToTitleButton, this.optionsButton, this.resumeButton].forEach((button, index) => {
@@ -145,6 +146,7 @@ export class PauseMenuView {
       button.y = 105 + index * 82;
     });
 
+    // オプション画面のUIをパネル内へ配置する
     this.optionsTitle.x = (PANEL_WIDTH - this.optionsTitle.uiWidth) / 2;
     this.optionsTitle.y = 38;
     this.volumeLabel.x = centeredX;

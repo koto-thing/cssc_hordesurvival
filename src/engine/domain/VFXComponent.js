@@ -82,10 +82,17 @@ export class VFXComponent extends Component {
     this._cacheInitialized = false;
   }
 
+  /**
+   * パーティクルの現在数を取得する
+   * @returns {number}
+   */
   get particleCount() {
     return this.particles.length;
   }
 
+  /**
+   * パーティクルの自動生成を開始する前に、GameObjectのviewにVFXのviewを追加する
+   */
   initialize() {
     if (this._attached) {
       return;
@@ -146,9 +153,14 @@ export class VFXComponent extends Component {
     this._updateShaderCache();
   }
 
+  /**
+   * パーティクルの状態を更新する
+   * @param deltaTime {number} 前回の更新からの経過時間（秒）
+   */
   tick(deltaTime) {
     const dt = Math.max(0, Number(deltaTime) || 0);
 
+    // パーティクルの自動生成
     if (this.playing && this.emissionRate > 0) {
       this._emissionAccumulator += dt * this.emissionRate;
       const count = Math.floor(this._emissionAccumulator);
@@ -158,6 +170,7 @@ export class VFXComponent extends Component {
       }
     }
 
+    // パーティクルの状態更新
     for (let index = this.particles.length - 1; index >= 0; index -= 1) {
       const particle = this.particles[index];
       particle.age += dt;
@@ -185,6 +198,9 @@ export class VFXComponent extends Component {
     this._updateShaderCache();
   }
 
+  /**
+   * VFXの状態を更新後に呼び出される
+   */
   onDestroy() {
     this.clear();
     this.view.uncache();

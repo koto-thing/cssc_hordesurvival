@@ -50,6 +50,7 @@ export class PlayerView {
     this.hudView = new createjs.Container();
     this.levelUpCelebration = new LevelUpCelebrationView();
 
+    // プレイヤーの表示は画像とフォールバック図形の両方を用意し、画像が読み込まれない場合でも色付き円で表示されるようにする
     this.playerImage = new Image({
       source: null,
       width: PLAYER_SIZE,
@@ -66,6 +67,7 @@ export class PlayerView {
     this.playerImage.x = -PLAYER_RADIUS;
     this.playerImage.y = -PLAYER_RADIUS;
 
+    // 経験値バーはスライダーを使い、値の変化に応じてバーが伸びるようにする
     this.experienceBar = new Slider({
       minValue: 0,
       maxValue: DEFAULT_EXPERIENCE_TO_NEXT_LEVEL,
@@ -80,6 +82,7 @@ export class PlayerView {
     });
     this.experienceBar.setInteractable(false);
 
+    // 経験値バーの上に表示するテキストはTextを使い、StageGLでも確実に表示されるようキャッシュする
     this.experienceText = new Text({
       text: "",
       width: EXPERIENCE_BAR_WIDTH,
@@ -90,6 +93,7 @@ export class PlayerView {
       verticalAlign: "middle",
     });
 
+    // レベル表示はTextを使い、StageGLでも確実に表示されるようキャッシュする
     this.levelText = new Text({
       text: "Lv. 1",
       width: 72,
@@ -99,6 +103,7 @@ export class PlayerView {
       verticalAlign: "middle",
     });
 
+    // ハート表示はContainerを使い、Textでハートを描画することでStageGLでも確実に表示されるようにする
     this.hearts = new createjs.Container();
     this.hurtFeedback = new createjs.Container();
     this.playerDisplay.mouseEnabled = false;
@@ -125,6 +130,7 @@ export class PlayerView {
       return;
     }
 
+    // 経験値バーの範囲とテキストを更新する
     if (
       this.renderedExperience !== this.statusController.experience ||
       this.renderedExperienceToNextLevel !== this.statusController.experienceToNextLevel
@@ -138,6 +144,7 @@ export class PlayerView {
       this.renderedExperienceToNextLevel = experienceToNextLevel;
     }
 
+    // 経験値バーの表示値を滑らかに追従させる
     const followAmount = 1 - Math.exp(-EXPERIENCE_BAR_FOLLOW_SPEED * Math.max(0, deltaTime));
     this.displayedExperience +=
       (this.statusController.experience - this.displayedExperience) * followAmount;
@@ -146,11 +153,13 @@ export class PlayerView {
     }
     this.experienceBar.setValueWithoutNotify(this.displayedExperience);
 
+    // レベル表示を更新する
     if (this.renderedLevel !== this.statusController.level) {
       this.levelText.setText(`Lv. ${this.statusController.level}`);
       this.renderedLevel = this.statusController.level;
     }
 
+    // ハート表示を更新する
     if (
       this.renderedHealth !== this.statusController.health ||
       this.renderedMaxHealth !== this.statusController.maxHealth
@@ -160,6 +169,7 @@ export class PlayerView {
       this.renderedMaxHealth = this.statusController.maxHealth;
     }
 
+    // 被弾時の赤点滅と割れたハート演出を進める
     this.#tickHitFeedback(deltaTime);
   }
 
@@ -195,6 +205,7 @@ export class PlayerView {
     const barWidth = Math.min(EXPERIENCE_BAR_WIDTH, Math.max(0, width - HUD_MARGIN * 2));
     const barX = Math.max(0, (width - barWidth) / 2);
 
+    // 経験値バーとレベル表示の位置を更新する
     this.experienceBar.setSize(barWidth, EXPERIENCE_BAR_HEIGHT);
     this.experienceBar.x = barX;
     this.experienceBar.y = EXPERIENCE_BAR_TOP;
@@ -223,6 +234,7 @@ export class PlayerView {
   #drawHearts(health, maxHealth) {
     this.hearts.removeAllChildren();
 
+    // ハートの表示は最大体力分のハートを描画し、現在体力分は塗りつぶし、残りは空ハートにする
     for (let index = 0; index < maxHealth; index += 1) {
       // 汎用Textを使い、StageGLでもHPが確実に表示されるようキャッシュする
       const heart = new Text({
@@ -240,6 +252,7 @@ export class PlayerView {
   #tickHitFeedback(deltaTime) {
     const dt = Math.max(0, Number(deltaTime) || 0);
 
+    // 被弾時の赤点滅を進める
     if (this.hitFlashRemaining > 0) {
       this.hitFlashRemaining = Math.max(0, this.hitFlashRemaining - dt);
       const flashIndex = Math.floor(this.hitFlashRemaining / HIT_FLASH_INTERVAL);
@@ -248,6 +261,7 @@ export class PlayerView {
       this.#setPlayerColor(this.playerColor);
     }
 
+    // 割れたハート演出を進める
     for (let index = this.hurtHeartEntries.length - 1; index >= 0; index -= 1) {
       const entry = this.hurtHeartEntries[index];
       entry.age += dt;
@@ -271,6 +285,10 @@ export class PlayerView {
     }
   }
 
+  /**
+   * プレイヤーの表示色を更新する
+   * @param color 表示色
+   */
   #setPlayerColor(color) {
     if (this.playerImage.color === color && this.playerImage.fallback.fillColor === color) {
       return;
@@ -281,6 +299,9 @@ export class PlayerView {
     this.playerImage.setColor(color);
   }
 
+  /**
+   * 割れたハートの演出を作成する
+   */
   #createBrokenHeart() {
     const container = new createjs.Container();
     const left = this.#createHeartHalf(true);
@@ -294,6 +315,11 @@ export class PlayerView {
     this.hurtHeartEntries.push({ container, left, right, age: 0 });
   }
 
+  /**
+   * 割れたハートの半分を作成する
+   * @param isLeft {boolean} 左半分かどうか
+   * @returns {Image} 割れたハートの半分の表示オブジェクト
+   */
   #createHeartHalf(isLeft) {
     const heart = new Image({
       source: this.hurtBreakIconSource,

@@ -86,6 +86,7 @@ export class MainMenuScene extends Scene {
     this.background = new createjs.Shape();
     this.content = new createjs.Container();
 
+    // タイトル文字列を生成する
     const title = new Text({
       text: "SIMPLE HORDE SURVIVAL",
       width: CONTENT_WIDTH,
@@ -97,10 +98,12 @@ export class MainMenuScene extends Scene {
     });
     title.y = 4;
 
+    // キャラクター選択とステージ選択の間に仕切り線を生成する
     const divider = new createjs.Shape();
     divider.graphics.beginFill(UI_THEME.border).drawRect(CONTENT_WIDTH / 2 - 1, 88, 2, 412);
     divider.cache(CONTENT_WIDTH / 2 - 1, 88, 2, 412);
 
+    // キャラクター選択UI、ステージ選択UI、操作説明、戻るボタン、ゲーム開始ボタン、通知UIを生成する
     this.#createCharacterSelection();
     this.#createStageSelection();
     this.#createOperationGuide();
@@ -108,6 +111,7 @@ export class MainMenuScene extends Scene {
     this.#createStartButton();
     this.#createNotification();
 
+    // タイトル文字列と仕切り線をコンテンツの最前面に配置する
     this.content.addChildAt(title, divider, 0);
     this.root.addChild(this.background, this.content, this.backButton, this.startButton);
     this.layout();
@@ -118,10 +122,12 @@ export class MainMenuScene extends Scene {
    * @param deltaTime 経過時間
    */
   tick(deltaTime) {
+    // 通知が表示されていない場合は何もしない
     if (this.notificationRemaining <= 0) {
       return;
     }
 
+    // 経過時間を減算して残り時間を更新する
     this.notificationRemaining = Math.max(0, this.notificationRemaining - deltaTime);
     if (this.notificationRemaining === 0) {
       this.notification.visible = false;
@@ -140,22 +146,26 @@ export class MainMenuScene extends Scene {
    * 背景と選択UIを表示領域へ配置する
    */
   layout() {
+    // 背景が生成されていない場合は何もしない
     if (this.background === null) {
       return;
     }
 
+    // 背景を描画してキャッシュする
     this.background.graphics
       .clear()
       .beginFill(UI_THEME.background)
       .drawRect(0, 0, this.width, this.height);
     this.background.cache(0, 0, this.width, this.height);
 
+    // 選択UIを表示領域へ収めるように縮小して配置する
     const contentLayout = calculateMainMenuLayout(this.width, this.height);
     this.content.scaleX = contentLayout.scale;
     this.content.scaleY = contentLayout.scale;
     this.content.x = contentLayout.x;
     this.content.y = contentLayout.y;
 
+    // 画面端へ固定する操作ボタンを配置する
     const controlLayout = calculateCornerControlLayout(
       this.width,
       this.height,
@@ -172,13 +182,16 @@ export class MainMenuScene extends Scene {
    * キャラクター選択UIを生成する
    */
   #createCharacterSelection() {
+    // キャラクター選択の見出しを生成する
     const heading = createHeading("キャラクター選択");
     heading.x = 24;
     heading.y = 88;
     this.content.addChild(heading);
 
+    // キャラクターカードの配置開始位置を計算する
     const startX = 28;
 
+    // キャラクターカードを生成して配置する
     characterList.forEach((character, index) => {
       const card = createCharacterCard(character);
       card.view.x = startX + index * (CHARACTER_SIZE + CHARACTER_GAP);
@@ -192,6 +205,7 @@ export class MainMenuScene extends Scene {
       this.content.addChild(card.view);
     });
 
+    // キャラクター性能の説明文を生成する
     this.characterDescription = new Text({
       text: "キャラクターを選択すると性能が表示されます",
       width: 500,
@@ -211,11 +225,13 @@ export class MainMenuScene extends Scene {
    * ステージ選択UIを生成する
    */
   #createStageSelection() {
+    // ステージ選択の見出しを生成する
     const heading = createHeading("ステージ選択");
     heading.x = CONTENT_WIDTH - 484;
     heading.y = 88;
     this.content.addChild(heading);
 
+    // ステージ選択ボタンを生成して配置する
     stageList.forEach((stage, index) => {
       const button = new Button({
         text: stage.name,
@@ -301,6 +317,7 @@ export class MainMenuScene extends Scene {
     this.notification.y = 482;
     this.notification.visible = false;
 
+    // 通知UIの背景を生成する
     const background = new createjs.Shape();
     background.graphics
       .beginFill(UI_THEME.danger)
@@ -316,10 +333,12 @@ export class MainMenuScene extends Scene {
    * @param selection 現在の選択
    */
   #updateSelection(selection) {
+    // キャラクターカードの選択状態を更新する
     for (const [id, card] of this.characterCards) {
       card.setSelected(id === selection.characterId);
     }
 
+    // 選択されたキャラクターの性能説明を更新する
     const character = characterList.find(({ id }) => id === selection.characterId);
     this.characterDescription.setText(
       character === undefined
@@ -327,6 +346,7 @@ export class MainMenuScene extends Scene {
         : `${character.name}\n${character.description}`,
     );
 
+    // ステージ選択ボタンの色を更新する
     for (const [id, button] of this.stageButtons) {
       const selected = id === selection.stageId;
       button.setColors({
@@ -336,6 +356,7 @@ export class MainMenuScene extends Scene {
       });
     }
 
+    // ゲーム開始ボタンの色を更新する
     this.startButton.setColors(
       selection.canStart ? START_BUTTON_ENABLED_COLORS : START_BUTTON_DISABLED_COLORS,
     );
@@ -347,10 +368,12 @@ export class MainMenuScene extends Scene {
    * 選択内容を検証してゲームを開始する
    */
   #requestStart() {
+    // 選択内容が不十分な場合は通知を表示してゲームを開始しない
     if (!this.selectionController.validateStart()) {
       return;
     }
 
+    // 選択内容をゲーム設定へ反映してゲームシーンへ遷移する
     this.gameSetup.characterId = this.selectionController.characterId;
     this.gameSetup.stageId = this.selectionController.stageId;
     this.sceneManager.changeScene("game");
@@ -390,6 +413,7 @@ function createHeading(text) {
  * @returns {{view: createjs.Container, setSelected: function(boolean): void}}
  */
 function createCharacterCard(character) {
+  // キャラクターカードのコンテナ、枠線、キャラクター画像、名前ラベルを生成する
   const view = new createjs.Container();
   const border = new createjs.Shape();
   const portrait = new createjs.Shape();
@@ -404,6 +428,7 @@ function createCharacterCard(character) {
   });
   label.y = CHARACTER_SIZE + 12;
 
+  // キャラクターカードの枠線を描画してキャッシュする
   portrait.graphics
     .beginFill(character.color)
     .drawRoundRect(0, 0, CHARACTER_SIZE, CHARACTER_SIZE, 8);
@@ -411,12 +436,14 @@ function createCharacterCard(character) {
   portrait.mouseEnabled = false;
   border.mouseEnabled = false;
 
+  // キャラクターカードのヒットエリアを設定する
   const hitArea = new createjs.Shape();
   hitArea.graphics.beginFill("#000000").drawRect(0, 0, CHARACTER_SIZE, CHARACTER_SIZE + 52);
   view.hitArea = hitArea;
   view.cursor = "pointer";
   view.addChild(border, portrait, label);
 
+  // キャラクターカードの選択状態を設定する
   return {
     view,
     setSelected(selected) {

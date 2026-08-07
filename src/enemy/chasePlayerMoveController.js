@@ -25,14 +25,17 @@ export class ChasePlayerMoveController extends Component {
       return;
     }
 
+    // 対象への方向を計算する
     const dx = this.target.transform.x - this.transform.x;
     const dy = this.target.transform.y - this.transform.y;
     const distance = Math.hypot(dx, dy);
 
+    // 対象が同じ位置にいる場合は移動しない
     if (distance === 0) {
       return;
     }
 
+    // 移動距離を計算し、対象への方向に移動する
     const movement = this.speed * Math.max(0, deltaTime);
     this.transform.translate((dx / distance) * movement, (dy / distance) * movement);
   }

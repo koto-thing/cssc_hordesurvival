@@ -66,6 +66,7 @@ export class PauseMenuController {
       return;
     }
 
+    // 状態を変更して表示側へ通知する
     this.state = state;
     this.onStateChanged(state);
   }

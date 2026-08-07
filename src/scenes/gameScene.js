@@ -181,6 +181,7 @@ export class GameScene extends Scene {
       },
     });
 
+    // レイヤーにゲームオブジェクトを追加する
     this.renderLayers.background.addChild(this.backgroundView.view);
     this.renderLayers.world.addChild(this.player.view);
     this.renderLayers.combatFeedback.addChild(this.combatFeedbackView.view);
@@ -196,9 +197,11 @@ export class GameScene extends Scene {
    * @param deltaTime 前フレームからの経過時間
    */
   tick(deltaTime) {
+    // HUD、ゲーム結果、ポーズメニュー、強化選択の表示を更新する
     this.levelUpView?.tick(deltaTime);
     this.playerView?.tickPresentation(deltaTime);
 
+    // ゲーム終了、ポーズ、強化選択中はゲーム進行を停止する
     if (
       this.gameResultController.result !== null ||
       this.pauseMenuController.isPaused ||
@@ -207,11 +210,13 @@ export class GameScene extends Scene {
       return;
     }
 
+    // WaveControllerを更新し、必要に応じて敵を出現させる
     this.waveController?.tick(deltaTime);
     if (this.gameResultController.result !== null) {
       return;
     }
 
+    // プレイヤー、弾、敵の状態を更新する
     this.player?.tick(deltaTime);
     this.player?.lateTick(deltaTime);
     for (const bullet of this.bullets) {
@@ -223,6 +228,7 @@ export class GameScene extends Scene {
       enemy.lateTick(deltaTime);
     }
 
+    // 戦闘の衝突判定を行い、結果を反映する
     const levelBeforeCombat = this.player.statusController.level;
     const combatResult = this.combatCollisionController.resolve({
       player: this.player,
@@ -243,10 +249,12 @@ export class GameScene extends Scene {
       this.levelUpView.showAfterLevelUp(this.playerUpgradeController.getChoices());
     }
 
+    // プレイヤーの体力が0以下になった場合、ゲームオーバーを表示する
     if (this.player.statusController.health <= 0) {
       this.gameResultController.gameOver();
     }
 
+    // 破棄されたオブジェクトを配列から削除する
     this.bullets = this.bullets.filter((bullet) => !bullet.destroyed);
     this.enemies = this.enemies.filter((enemy) => !enemy.destroyed);
   }

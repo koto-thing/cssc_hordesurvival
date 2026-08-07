@@ -39,19 +39,26 @@ export class EnemyShotController extends Component {
     }
   }
 
+  /**
+   * 弾を撃つ
+   */
   #shoot() {
+    // 発射者の位置、ターゲットの位置、ターゲットの速度を取得
     const shooterPosition = {
       x: this.transform.x,
       y: this.transform.y,
     };
+    // ターゲットの位置と速度を取得
     const targetPosition = {
       x: this.target.transform.x,
       y: this.target.transform.y,
     };
+    // ターゲットの速度を取得（移動コントローラーがない場合は0とする）
     const targetVelocity = {
       x: this.target.moveController?.velocityX ?? 0,
       y: this.target.moveController?.velocityY ?? 0,
     };
+    // 迎撃予測位置を計算するか、現在位置を使用するかを決定
     const aimPosition =
       this.aimType === "predictive"
         ? resolveInterceptPosition({
@@ -63,6 +70,7 @@ export class EnemyShotController extends Component {
         : targetPosition;
     const angle = Math.atan2(aimPosition.y - shooterPosition.y, aimPosition.x - shooterPosition.x);
 
+    // 弾を発射する
     this.bulletSpawner.spawn({
       bulletId: this.bulletId,
       position: shooterPosition,
@@ -92,10 +100,12 @@ export function resolveInterceptPosition({
   const epsilon = 1e-8;
   let interceptTime = null;
 
+  // 弾の速度が0以下の場合は、迎撃予測を行わずに現在位置を返す
   if (projectileSpeed <= 0) {
     return { ...targetPosition };
   }
 
+  // 二次方程式の解を求める
   if (Math.abs(a) < epsilon) {
     if (Math.abs(b) >= epsilon) {
       const time = -c / b;
@@ -110,10 +120,12 @@ export function resolveInterceptPosition({
     }
   }
 
+  // 解がない場合は現在位置を返す
   if (interceptTime === null) {
     return { ...targetPosition };
   }
 
+  // 迎撃予測位置を計算して返す
   return {
     x: targetPosition.x + targetVelocity.x * interceptTime,
     y: targetPosition.y + targetVelocity.y * interceptTime,

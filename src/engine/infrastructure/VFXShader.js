@@ -136,6 +136,10 @@ export class VFXShader extends createjs.Filter {
     }
   }
 
+  /**
+   * VFXShaderを複製する
+   * @returns {VFXShader}
+   */
   clone() {
     return new VFXShader({
       vertex: this.VTX_SHADER_BODY,
@@ -144,6 +148,10 @@ export class VFXShader extends createjs.Filter {
     });
   }
 
+  /**
+   * VFXShaderの文字列表現を返す
+   * @returns {string}
+   */
   toString() {
     return "[VFXShader]";
   }

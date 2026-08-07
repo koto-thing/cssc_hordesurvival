@@ -1,4 +1,12 @@
-﻿export const bulletList = [
+﻿/**
+ * アセットのリストを定義する配列
+ * 各アセットはオブジェクトとして定義され、以下のプロパティを持つ:
+ * - id: アセットの識別子 (string)
+ * - src: アセットのソースURL (string)
+ * - type: アセットの種類 (createjs.Types.IMAGE または createjs.Types.SOUND)
+ * @type {[{id: string, src: string, type: *},{id: string, src: string, type: *},{id: string, src: string, type: *},{id: string, src: string, type: *},{id: string, src: string, type: *},null,null,null,null,null,null,null,null,null]}
+ */
+export const bulletList = [
   {
     id: "testImg",
     src: new URL("./static/images/test.png", import.meta.url).href,

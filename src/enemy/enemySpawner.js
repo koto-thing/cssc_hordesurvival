@@ -17,18 +17,22 @@ export class EnemySpawner {
    * @returns {*}
    */
   spawn({ enemyId, position }) {
+    // 敵の定義を取得する
     const definition = this.enemyDefinitions[enemyId];
 
+    // 敵の定義が存在しない場合はエラーを投げる
     if (!definition) {
       throw new Error(`Unknown enemy ID: ${enemyId}`);
     }
 
+    // 敵を生成する
     const enemy = this.enemyFactory.create({
       definition,
       position,
       target: this.target,
     });
 
+    // 敵をスポーンさせた後の処理を呼び出す
     this.onSpawn(enemy);
     return enemy;
   }

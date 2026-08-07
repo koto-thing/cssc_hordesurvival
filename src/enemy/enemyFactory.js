@@ -26,6 +26,7 @@ export class EnemyFactory {
    * @returns {Enemy}
    */
   create({ definition, position, target }) {
+    // 敵のステータスを生成する
     const status = new EnemyStatusController({
       hp: definition.hp,
       attack: definition.attack,
@@ -38,6 +39,7 @@ export class EnemyFactory {
       maxHp: status.maxHp,
     });
 
+    // 敵のゲームオブジェクトを生成する
     const enemy = new Enemy({
       view: enemyView.view,
       enemyView,
@@ -53,6 +55,7 @@ export class EnemyFactory {
       }),
     });
 
+    // 敵の位置を設定する
     enemy.transform.x = position.x;
     enemy.transform.y = position.y;
 
@@ -69,6 +72,7 @@ export class EnemyFactory {
       return null;
     }
 
+    // 連番画像アニメーションのクリップを生成する
     const clips = Object.fromEntries(
       Object.entries(definition.clips).map(([name, clip]) => [
         name,
@@ -79,6 +83,7 @@ export class EnemyFactory {
       ]),
     );
 
+    // 連番画像アニメーションを生成する
     return new SpriteAnimation({
       clips,
       initialClip: definition.initialClip,
@@ -91,6 +96,7 @@ export class EnemyFactory {
    * @returns {createjs.DisplayObject}
    */
   #createSprite(imageId, fallbackColor = FALLBACK_ENEMY_COLOR) {
+    // 画像IDが指定されている場合は、登録済みの画像を取得してBitmapを生成する
     if (imageId) {
       try {
         const image = this.assetManager.get(imageId);
@@ -102,6 +108,7 @@ export class EnemyFactory {
       }
     }
 
+    // フォールバック表示を生成する
     const fallback = new createjs.Shape();
     fallback.graphics.beginFill(fallbackColor).drawCircle(0, 0, FALLBACK_ENEMY_RADIUS);
     // StageGLでShapeを描画できるよう表示範囲をキャッシュする
@@ -123,12 +130,14 @@ export class EnemyFactory {
    */
   #createMoveController({ definition, target }) {
     switch (definition.movementType) {
+      // 追従型の移動コントローラーを生成する
       case "chase":
         return new ChasePlayerMoveController({
           target,
           speed: definition.speed,
         });
 
+      // それ以外の移動タイプは未実装
       default:
         throw new Error(`Unknown movement type ${definition.movementType}`);
     }
@@ -142,6 +151,7 @@ export class EnemyFactory {
       return null;
     }
 
+    // 射撃コンポーネントを生成する
     return new EnemyShotController({
       bulletSpawner: this.bulletSpawner,
       bulletId: definition.shooting.bulletId,

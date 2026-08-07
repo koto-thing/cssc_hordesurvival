@@ -76,11 +76,13 @@ export class SceneManager {
       this.currentScene.dispose();
     }
 
+    // 新しいシーンを生成して初期化する
     const factory = this.sceneFactories.get(this.nextSceneName);
 
     this.currentScene = factory();
     this.nextSceneName = null;
 
+    // 新しいシーンのサイズを現在のビューポートに合わせる
     this.currentScene.resize(this.viewport.width, this.viewport.height);
     this.stage.addChild(this.currentScene.root);
     this.currentScene.initialize();

@@ -10,14 +10,26 @@ export class ColliderComponent extends Component {
     this.offsetY = offsetY;
   }
 
+  /**
+   * コライダーの中心座標を取得する
+   * @returns {*}
+   */
   get centerX() {
     return (this.transform?.x ?? 0) + this.offsetX;
   }
 
+  /**
+   * コライダーの中心座標を取得する
+   * @returns {*}
+   */
   get centerY() {
     return (this.transform?.y ?? 0) + this.offsetY;
   }
 
+  /**
+   * コライダーの中心座標を取得する
+   * @returns {{x: *, y: *}}
+   */
   get center() {
     return { x: this.centerX, y: this.centerY };
   }
@@ -28,42 +40,52 @@ export class ColliderComponent extends Component {
    * @returns {boolean} 交差している場合はtrue、そうでない場合はfalse
    */
   intersects(other) {
+    // 交差判定の前に、otherがColliderComponentのインスタンスであることを確認する
     if (!(other instanceof ColliderComponent)) {
       return false;
     }
 
+    // 2つのコライダーの種類に応じて交差判定を行う
     if (this instanceof CircleColliderComponent && other instanceof CircleColliderComponent) {
       return ColliderComponent.#intersectsCircleCircle(this, other);
     }
 
+    // 2つの矩形コライダーの交差判定
     if (this instanceof RectangleColliderComponent && other instanceof RectangleColliderComponent) {
       return ColliderComponent.#intersectsRectangleRectangle(this, other);
     }
 
+    // 円形コライダーと矩形コライダーの交差判定
     if (this instanceof CircleColliderComponent && other instanceof RectangleColliderComponent) {
       return ColliderComponent.#intersectsCircleRectangle(this, other);
     }
 
+    // 矩形コライダーと円形コライダーの交差判定
     if (this instanceof RectangleColliderComponent && other instanceof CircleColliderComponent) {
       return ColliderComponent.#intersectsCircleRectangle(other, this);
     }
 
+    // 楕円形コライダーと円形コライダーの交差判定
     if (this instanceof EllipseColliderComponent && other instanceof CircleColliderComponent) {
       return ColliderComponent.#intersectsEllipseCircle(this, other);
     }
 
+    // 円形コライダーと楕円形コライダーの交差判定
     if (this instanceof CircleColliderComponent && other instanceof EllipseColliderComponent) {
       return ColliderComponent.#intersectsEllipseCircle(other, this);
     }
 
+    // 楕円形コライダーと矩形コライダーの交差判定
     if (this instanceof EllipseColliderComponent && other instanceof RectangleColliderComponent) {
       return ColliderComponent.#intersectsEllipseRectangle(this, other);
     }
 
+    // 矩形コライダーと楕円形コライダーの交差判定
     if (this instanceof RectangleColliderComponent && other instanceof EllipseColliderComponent) {
       return ColliderComponent.#intersectsEllipseRectangle(other, this);
     }
 
+    // 2つの楕円形コライダーの交差判定
     if (this instanceof EllipseColliderComponent && other instanceof EllipseColliderComponent) {
       return ColliderComponent.#intersectsEllipseEllipse(this, other);
     }
@@ -216,18 +238,34 @@ export class RectangleColliderComponent extends ColliderComponent {
     this.height = height;
   }
 
+  /**
+   * 矩形コライダーの左端の座標を取得する
+   * @returns {number} 左端の座標
+   */
   get left() {
     return this.centerX - this.width / 2;
   }
 
+  /**
+   * 矩形コライダーの右端の座標を取得する
+   * @returns {number} 右端の座標
+   */
   get right() {
     return this.centerX + this.width / 2;
   }
 
+  /**
+   * 矩形コライダーの上端の座標を取得する
+   * @returns {number} 上端の座標
+   */
   get top() {
     return this.centerY - this.height / 2;
   }
 
+  /**
+   * 矩形コライダーの下端の座標を取得する
+   * @returns {number} 下端の座標
+   */
   get bottom() {
     return this.centerY + this.height / 2;
   }

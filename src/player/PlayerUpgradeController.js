@@ -89,6 +89,10 @@ export class PlayerUpgradeController {
     return true;
   }
 
+  /**
+   * 現在強化選択待機中か
+   * @returns {boolean}
+   */
   get isSelecting() {
     return this.pendingSelections > 0;
   }

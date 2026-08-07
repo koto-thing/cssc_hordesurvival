@@ -105,6 +105,11 @@ export class AssetManager {
   }
 }
 
+/**
+ * SVGソースかどうかを判定する
+ * @param source {string} ソースのURL
+ * @returns {boolean} SVGソースの場合はtrue、それ以外はfalse
+ */
 function isSvgSource(source) {
   return typeof source === "string" && /\.svg(?:[?#]|$)/i.test(source);
 }

@@ -30,6 +30,7 @@ export class CombatFeedbackView {
     damageText.y = -38;
     container.addChild(damageText);
 
+    // パーティクルを生成する
     const particles = [];
     for (let index = 0; index < PARTICLE_COUNT; index += 1) {
       const angle = (Math.PI * 2 * index) / PARTICLE_COUNT;
@@ -44,6 +45,7 @@ export class CombatFeedbackView {
       });
     }
 
+    // 演出を管理するエントリを追加する
     this.view.addChild(container);
     this.entries.push({ container, damageText, particles, age: 0 });
   }
@@ -54,6 +56,7 @@ export class CombatFeedbackView {
   tick(deltaTime) {
     const dt = Math.max(0, Number(deltaTime) || 0);
 
+    // 古い順に逆ループして破棄する
     for (let index = this.entries.length - 1; index >= 0; index -= 1) {
       const entry = this.entries[index];
       entry.age += dt;
